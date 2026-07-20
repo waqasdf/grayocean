@@ -153,7 +153,7 @@ export default function SkiptracePage() {
         {confidence && confidenceBadge(confidence)}
         {onCopy && (
           <button onClick={onCopy} className="text-[color:var(--go-text-meta)] hover:text-[color:var(--go-text-secondary)] transition-colors">
-            {copiedItem === copyId ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+            {copiedItem === copyId ? <Check className="w-3 h-3 text-[color:var(--go-success)]" /> : <Copy className="w-3 h-3" />}
           </button>
         )}
       </div>
@@ -229,7 +229,7 @@ export default function SkiptracePage() {
               </div>
               <div className="p-5 space-y-4">
                 <div>
-                  <label className="block text-[10px] text-[color:var(--go-text-muted)] uppercase tracking-widest mb-2">Full Name <span className="text-red-400">*</span></label>
+                  <label className="block text-[10px] text-[color:var(--go-text-muted)] uppercase tracking-widest mb-2">Full Name <span className="text-[color:var(--go-error)]">*</span></label>
                   <Input
                     placeholder="Jane Smith"
                     value={fullName}
@@ -265,7 +265,7 @@ export default function SkiptracePage() {
                     <SelectTrigger className="bg-[var(--go-bg)] border-[color:var(--go-border-strong)] text-[color:var(--go-text)] text-sm h-9 focus:ring-0">
                       <SelectValue placeholder="Select state" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a1a1a] border-[color:var(--go-border-strong)] max-h-64">
+                    <SelectContent className="bg-[var(--go-bg-elevated)] border-[color:var(--go-border-strong)] max-h-64">
                       {usStates.map(s => (
                         <SelectItem key={s} value={s} className="text-[color:var(--go-text)] hover:bg-[var(--go-bg-panel)] text-xs font-mono">{s}</SelectItem>
                       ))}
@@ -274,9 +274,9 @@ export default function SkiptracePage() {
                 </div>
 
                 {error && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg border border-red-500/20 bg-red-500/[0.06]">
-                    <AlertCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />
-                    <span className="text-[11px] text-red-400">{error}</span>
+                  <div className="flex items-start gap-2 p-3 rounded-lg border border-[color:var(--go-error-border)] bg-[var(--go-error-fill)]">
+                    <AlertCircle className="w-3.5 h-3.5 text-[color:var(--go-error)] mt-0.5 flex-shrink-0" />
+                    <span className="text-[11px] text-[color:var(--go-error)]">{error}</span>
                   </div>
                 )}
 
@@ -312,9 +312,9 @@ export default function SkiptracePage() {
 
             {/* Terms indicator if accepted */}
             {acceptedTerms && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/15 bg-emerald-500/[0.04]">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span className="text-[10px] text-emerald-500/80">Legal terms accepted</span>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[color:var(--go-success-border)] bg-[var(--go-success-fill)]">
+                <div className="w-1.5 h-1.5 rounded-full bg-[var(--go-success)]" />
+                <span className="text-[10px] text-[color:var(--go-success)]">Legal terms accepted</span>
               </div>
             )}
           </motion.div>

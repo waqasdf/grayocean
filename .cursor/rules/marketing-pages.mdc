@@ -1,0 +1,17 @@
+---
+description: Marketing site page wiring and patterns
+globs: src/pages/site/**/*.{jsx,js},src/components/marketing/**/*
+alwaysApply: false
+---
+
+# Marketing (`src/pages/site`)
+
+- Shell: `MarketingShell` (skip for auth-only / system error pages)
+- Primitives: `src/components/marketing/primitives.jsx` + `ProductPreview`
+- Register: page file → `pages/site/index.js` barrel → import + route in `App.jsx`
+- Nav: update `MarketingShell.jsx` when adding top-level sections
+- Tokens: `--go-*`; match Product / Docs / Pricing density
+- Auth marketing: `src/pages/site/auth/`
+- System: `src/pages/site/system/`
+
+Detail → `add-marketing-page` skill.

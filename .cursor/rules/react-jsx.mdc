@@ -1,0 +1,24 @@
+---
+description: React/JSX conventions for GrayOcean pages and components
+globs: src/**/*.{jsx,js}
+alwaysApply: false
+---
+
+# React / JSX
+
+- Functional components; default export for pages
+- Feature UI under `src/components/<feature>/`
+- `cn()` from `@/lib/utils` for class merge
+- Prefer `@/components/ui/*` primitives
+- Colors via `var(--go-*)` — not `text-gray-*` / raw hex
+- Workspace chrome = `Layout.jsx` only; marketing = `MarketingShell`
+
+```jsx
+// Prefer
+import { Button } from "@/components/ui/button"
+<p style={{ color: "var(--go-text-secondary)" }}>…</p>
+
+// Avoid
+import Button from "../../components/ui/button"
+<p className="text-gray-500">…</p>
+```

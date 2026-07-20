@@ -1,0 +1,20 @@
+---
+description: GrayOcean --go-* design tokens (don't dump index.css)
+globs: src/**/*.{jsx,js,css}
+alwaysApply: false
+---
+
+# Design tokens
+
+In `src/index.css` (`:root` + `.dark`). Use tokens — no hardcoded theme hex.
+
+| Group | Tokens |
+|-------|--------|
+| Surfaces | `--go-bg` `--go-bg-card` `--go-bg-panel` `--go-bg-elevated` `--go-bg-sidebar` |
+| Text | `--go-text` `--go-text-body` `--go-text-secondary` `--go-text-muted` |
+| Accent | `--go-accent` `--go-accent-text` `--go-accent-soft` `--go-accent-border` (`#5E6AD2`) |
+| Border | `--go-border` `--go-border-strong` `--go-border-subtle` |
+| Status | `--go-success*` `--go-warning*` `--go-error*` |
+| Elev | `--go-shadow-card` `--go-shadow-btn` `--go-radius` `--go-radius-card` |
+
+Accent purple is intentional. Prefer soft panels over heavy card chrome unless interaction needs a container. Full list → `go-ui` skill or `:root` block only.

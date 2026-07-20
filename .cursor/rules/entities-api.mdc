@@ -1,0 +1,26 @@
+---
+description: Local entity/API patterns (Base44 stand-in via localClient)
+globs: src/{api,entities,integrations}/**/*.{js,jsx}
+alwaysApply: false
+---
+
+# Data layer
+
+`base44Client.js` → `localClient.js`. Keys: `grayocean_entity_*`.
+
+API: `list` · `filter` · `get` · `create` · `update` · `delete`  
+Order: `"field"` asc, `"-field"` desc.
+
+## Add entity
+
+1. `ENTITY_NAMES` in `localClient.js`
+2. `src/entities/Name.js` wrapper
+3. Optional `base44/entities/Name.jsonc`
+
+```js
+import { db } from '@/api/localClient'
+const store = db.entities.MyThing
+export const MyThing = { ...store }
+```
+
+No imaginary cloud Base44 APIs. `InvokeLLM` is stubbed. Detail → `add-entity` skill.

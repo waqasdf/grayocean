@@ -11,9 +11,9 @@ const variants = {
 };
 
 const sizes = {
-  xs: 'px-1.5 py-0.5 text-[9px]',
-  sm: 'px-2 py-1 text-[10px]',
-  md: 'px-3 py-1 text-xs',
+  xs: 'px-1.5 py-0.5 text-[10px]',
+  sm: 'px-2 py-0.5 text-[11px]',
+  md: 'px-2.5 py-1 text-xs',
 };
 
 export function MinimalBadge({ 
@@ -27,8 +27,8 @@ export function MinimalBadge({
       className={`
         inline-flex items-center
         border rounded-md
-        font-medium uppercase tracking-wider
-        transition-all duration-200
+        font-medium uppercase tracking-wide
+        transition-colors duration-[var(--go-duration-fast)]
         ${variants[variant]}
         ${sizes[size]}
         ${className}

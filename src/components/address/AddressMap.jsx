@@ -17,10 +17,10 @@ export default function AddressMap({ latitude, longitude, address, neighborhoodS
 
   const position = [latitude, longitude];
   const getScoreColor = (score) => {
-    if (score >= 80) return '#3b82f6';
-    if (score >= 60) return '#22c55e';
-    if (score >= 40) return '#f59e0b';
-    return '#71717a';
+    if (score >= 80) return 'var(--go-accent)';
+    if (score >= 60) return 'var(--go-success)';
+    if (score >= 40) return 'var(--go-warning)';
+    return 'var(--go-text-muted)';
   };
 
   return (
@@ -49,7 +49,7 @@ export default function AddressMap({ latitude, longitude, address, neighborhoodS
                 <div className="text-xs">
                   <div className="font-semibold mb-1">{address}</div>
                   {neighborhoodScore && (
-                    <div className="text-gray-600">Score: {neighborhoodScore}/100</div>
+                    <div className="text-[color:var(--go-text-muted)]">Score: {neighborhoodScore}/100</div>
                   )}
                 </div>
               </Popup>

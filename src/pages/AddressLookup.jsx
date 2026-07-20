@@ -545,8 +545,8 @@ Use real data sources when possible. Provide specific, actionable intelligence.`
           )}
 
           {error && (
-            <div className={`mt-4 p-3 rounded-lg ${error.includes('Rate limit') || error.includes('Too many') ? 'bg-[var(--go-accent-soft)] border border-[color:var(--go-accent-border)]' : 'bg-gray-500/10 border border-gray-500/30'}`}>
-              <p className={`text-xs text-center ${error.includes('Rate limit') || error.includes('Too many') ? 'text-[color:var(--go-accent-text)]' : 'text-[color:var(--go-text-secondary)]'}`}>
+            <div className={`mt-4 p-3 rounded-lg ${error.includes('Rate limit') || error.includes('Too many') ? 'bg-[var(--go-accent-soft)] border border-[color:var(--go-accent-border)]' : 'bg-[var(--go-error-fill)] border border-[color:var(--go-error-border)]'}`}>
+              <p className={`text-xs text-center ${error.includes('Rate limit') || error.includes('Too many') ? 'text-[color:var(--go-accent-text)]' : 'text-[color:var(--go-error)]'}`}>
                 {error}
               </p>
               {rateLimitCooldown > 0 && (
@@ -630,8 +630,8 @@ Use real data sources when possible. Provide specific, actionable intelligence.`
 
               {/* Validation Notes Card */}
               {!results.is_valid && results.validation_notes && (
-                <Card className="border border-red-500/30 bg-red-500/10  text-red-300 text-center p-4">
-                  <CardTitle className="text-[11px] font-semibold text-red-300 mb-2 uppercase tracking-widest">Validation Alert</CardTitle>
+                <Card className="border border-[color:var(--go-error-border)] bg-[var(--go-error-fill)] text-[color:var(--go-error)] text-center p-4">
+                  <CardTitle className="text-[11px] font-semibold text-[color:var(--go-error)] mb-2 uppercase tracking-widest">Validation Alert</CardTitle>
                   <CardContent className="p-0 text-[11px] leading-relaxed">
                     <p>{results.validation_notes}</p>
                   </CardContent>

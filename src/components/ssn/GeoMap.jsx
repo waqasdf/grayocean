@@ -71,13 +71,13 @@ function MapUpdater({ center }) {
 const getRiskColor = (riskLevel) => {
   switch (riskLevel) {
     case 'high':
-      return '#ef4444';
+      return '#e5484d';
     case 'medium':
-      return '#f59e0b';
+      return '#e5a550';
     case 'low':
-      return '#22c55e';
+      return '#4cb782';
     default:
-      return '#71717a';
+      return '#62666d';
   }
 };
 
@@ -91,10 +91,7 @@ export default function GeoMap({ searches = [] }) {
   const mapCenter = latestSearch?.coordinates || defaultCenter;
 
   return (
-    <div
-      className="rounded-lg border overflow-hidden"
-      style={{ background: 'var(--go-bg-card)', borderColor: 'var(--go-border)' }}
-    >
+    <div className="go-map-container">
       <div
         className="flex items-center justify-between p-4 border-b"
         style={{ borderColor: 'var(--go-border)', background: 'var(--go-bg-panel)' }}

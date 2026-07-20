@@ -186,9 +186,9 @@ export default function BatchAnalysisPage() {
                 </div>
 
                 {error && (
-                  <div className="flex items-start gap-2.5 p-3 rounded-lg border border-red-500/20 bg-red-500/[0.06]">
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />
-                    <span className="text-[11px] text-red-400">{error}</span>
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg border border-[color:var(--go-error-border)] bg-[var(--go-error-fill)]">
+                    <AlertTriangle className="w-3.5 h-3.5 text-[color:var(--go-error)] mt-0.5 flex-shrink-0" />
+                    <span className="text-[11px] text-[color:var(--go-error)]">{error}</span>
                   </div>
                 )}
 
@@ -265,9 +265,9 @@ export default function BatchAnalysisPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {[
                       { label: 'Total', value: results.total_count, color: 'text-[color:var(--go-text)]', icon: Layers },
-                      { label: 'Valid', value: results.valid_count, color: 'text-emerald-400', icon: CheckCircle2 },
-                      { label: 'Invalid', value: results.invalid_count, color: 'text-red-400', icon: XCircle },
-                      { label: 'High Risk', value: results.high_risk_count, color: 'text-amber-400', icon: AlertTriangle },
+                      { label: 'Valid', value: results.valid_count, color: 'text-[color:var(--go-success)]', icon: CheckCircle2 },
+                      { label: 'Invalid', value: results.invalid_count, color: 'text-[color:var(--go-error)]', icon: XCircle },
+                      { label: 'High Risk', value: results.high_risk_count, color: 'text-[color:var(--go-warning)]', icon: AlertTriangle },
                     ].map(({ label, value, color, icon: Icon }) => (
                       <div key={label} className="go-panel p-3">
                         <div className="flex items-center justify-between mb-2">

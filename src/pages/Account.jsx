@@ -74,7 +74,7 @@ export default function AccountPage() {
       <div className="min-h-screen bg-[var(--go-bg)] flex items-center justify-center px-4">
         <Card className="go-panel shadow-none  max-w-md w-full">
           <CardContent className="p-6 text-center">
-            <div className="text-sm text-red-400 mb-4">{error}</div>
+            <div className="text-sm text-[color:var(--go-error)] mb-4">{error}</div>
             <Button onClick={loadUser} className="h-8 go-pill-btn">
               Retry
             </Button>

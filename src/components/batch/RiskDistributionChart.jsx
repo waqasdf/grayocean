@@ -3,10 +3,10 @@ import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
 
 const RISK_META = [
-  { key: 'low', label: 'Low Risk', color: '#22c55e' },
-  { key: 'medium', label: 'Medium', color: '#3b82f6' },
-  { key: 'high', label: 'High Risk', color: '#f59e0b' },
-  { key: 'invalid', label: 'Invalid', color: '#ef4444' },
+  { key: 'low', label: 'Low Risk', color: '#4cb782' },
+  { key: 'medium', label: 'Medium', color: '#5e6ad2' },
+  { key: 'high', label: 'High Risk', color: '#e5a550' },
+  { key: 'invalid', label: 'Invalid', color: '#e5484d' },
 ];
 
 export default function RiskDistributionChart({ results }) {

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import MarketingShell from "@/components/marketing/MarketingShell";
 import ProductPreview from "@/components/marketing/ProductPreview";
+import IdentitySignalField from "@/components/marketing/IdentitySignalField";
 import {
   Section,
   Container,
@@ -20,6 +21,7 @@ import {
   FAQ,
   CTABand,
   SimpleLink,
+  MetricRow,
 } from "@/components/marketing/primitives";
 
 const LOGOS = ["Northfield", "Apex Counsel", "Ledgerly", "Harbor Risk", "Clearpath KYC", "Orion Ops"];
@@ -154,14 +156,15 @@ export default function Landing() {
   return (
     <MarketingShell>
       {/* Hero */}
-      <Section className="!pt-16 md:!pt-24 !pb-10 md:!pb-14">
-        <Container className="text-center max-w-3xl">
+      <Section className="!pt-16 md:!pt-24 lg:!pt-28 !pb-10 md:!pb-14 relative overflow-hidden">
+        <IdentitySignalField />
+        <Container className="text-center max-w-3xl relative z-[1]">
           <Eyebrow>Identity intelligence</Eyebrow>
-          <h1 className="go-h2 mb-5">
+          <h1 className="go-display mb-5 max-w-[14ch] mx-auto">
             SSN, address, and skiptrace in one workspace
           </h1>
-          <p className="text-[16px] leading-relaxed mb-8" style={{ color: "var(--go-text-secondary)" }}>
-            Validate SSNs, enrich addresses, run skiptrace, and batch analysis — in one place for investigation desks.
+          <p className="go-lead mb-8 mx-auto">
+            Validate SSNs, enrich addresses, run skiptrace, and batch analysis — built for investigation desks.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <SimpleLink to="/signup">Sign up</SimpleLink>
@@ -200,22 +203,13 @@ export default function Landing() {
       {/* Metrics */}
       <Section className="!py-12 md:!py-16">
         <Container>
-          <div className="grid sm:grid-cols-3 gap-6 md:gap-8">
-            {[
+          <MetricRow
+            items={[
               { value: "12M+", label: "Lookups processed" },
               { value: "99.9%", label: "API uptime (trailing 12 mo)" },
               { value: "<200ms", label: "Median validation latency" },
-            ].map((m) => (
-              <div key={m.label} className="text-center">
-                <div className="text-[28px] md:text-[32px] font-semibold tracking-tight mb-1" style={{ color: "var(--go-text)" }}>
-                  {m.value}
-                </div>
-                <div className="text-[14px]" style={{ color: "var(--go-text-secondary)" }}>
-                  {m.label}
-                </div>
-              </div>
-            ))}
-          </div>
+            ]}
+          />
         </Container>
       </Section>
 

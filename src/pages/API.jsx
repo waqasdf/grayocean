@@ -52,7 +52,7 @@ export default function APIPage() {
     }
   ];
 
-  const methodColor = { GET: 'text-emerald-400', POST: 'text-[color:var(--go-accent-text)]', PUT: 'text-amber-400', DELETE: 'text-red-400' };
+  const methodColor = { GET: 'text-[color:var(--go-success)]', POST: 'text-[color:var(--go-accent-text)]', PUT: 'text-[color:var(--go-warning)]', DELETE: 'text-[color:var(--go-error)]' };
 
   return (
     <div className="min-h-screen bg-[var(--go-bg)]">
@@ -89,27 +89,27 @@ export default function APIPage() {
               </div>
               <div>
                 {isSubscribed ? (
-                  <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.05] p-4 h-full flex flex-col justify-between">
+                  <div className="rounded-lg border border-[color:var(--go-success-border)] bg-[var(--go-success-fill)] p-4 h-full flex flex-col justify-between">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      <span className="text-[10px] text-emerald-400 font-semibold uppercase tracking-widest">Active Key</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--go-success)]" />
+                      <span className="text-[10px] text-[color:var(--go-success)] font-semibold uppercase tracking-widest">Active Key</span>
                     </div>
-                    <code className="font-mono text-xs text-[color:var(--go-text)] break-all bg-black/30 rounded-lg p-3 block">
+                    <code className="font-mono text-xs text-[color:var(--go-text)] break-all bg-[var(--go-bg-panel)] rounded-lg p-3 block">
                       grayocean_{user?.id}_prod
                     </code>
                     <button
                       onClick={() => copy(`grayocean_${user?.id}_prod`, 'apikey')}
                       className="mt-3 flex items-center gap-1.5 text-[10px] text-[color:var(--go-text-muted)] hover:text-[color:var(--go-text)] transition-colors"
                     >
-                      {copied === 'apikey' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      {copied === 'apikey' ? <Check className="w-3 h-3 text-[color:var(--go-success)]" /> : <Copy className="w-3 h-3" />}
                       {copied === 'apikey' ? 'Copied' : 'Copy key'}
                     </button>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.05] p-4 h-full flex flex-col justify-center">
-                    <Lock className="w-5 h-5 text-amber-500/60 mb-3" />
-                    <p className="text-xs text-amber-400/80 mb-3">Subscribe to get your API key and begin making requests.</p>
-                    <a href="/Pricing" className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-400 hover:text-amber-300 transition-colors">
+                  <div className="rounded-lg border border-[color:var(--go-warning-border)] bg-[var(--go-warning-fill)] p-4 h-full flex flex-col justify-center">
+                    <Lock className="w-5 h-5 text-[color:var(--go-warning)] opacity-60 mb-3" />
+                    <p className="text-xs text-[color:var(--go-warning)] opacity-80 mb-3">Subscribe to get your API key and begin making requests.</p>
+                    <a href="/Pricing" className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[color:var(--go-warning)] hover:text-[color:var(--go-accent-text-hover)] transition-colors">
                       View plans <Zap className="w-3 h-3" />
                     </a>
                   </div>
@@ -142,7 +142,7 @@ export default function APIPage() {
                     onClick={() => copy(ep.endpoint, `ep-${index}`)}
                     className="text-[color:var(--go-text-meta)] hover:text-[color:var(--go-text-secondary)] transition-colors"
                   >
-                    {copied === `ep-${index}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    {copied === `ep-${index}` ? <Check className="w-3 h-3 text-[color:var(--go-success)]" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
                 <span className="text-[11px] font-semibold text-[color:var(--go-text)]">{ep.name}</span>
@@ -166,7 +166,7 @@ export default function APIPage() {
                   {/* Response */}
                   <div>
                     <div className="flex items-center gap-1.5 mb-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/60" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--go-success)] opacity-60" />
                       <span className="text-[10px] text-[color:var(--go-text-meta)] uppercase tracking-widest font-medium">Response</span>
                     </div>
                     <div className="rounded-lg border border-[color:var(--go-border)] bg-[var(--go-bg)] p-4 overflow-x-auto">

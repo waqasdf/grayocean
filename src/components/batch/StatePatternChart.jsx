@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import { motion } from "framer-motion";
 
-const BAR_COLORS = ['#3b82f6', '#60a5fa', '#2563eb', '#93c5fd', '#1d4ed8', '#38bdf8', '#22c55e', '#f59e0b'];
+const BAR_COLORS = ['#5e6ad2', '#8b95e8', '#62666d', '#8a8f98', '#4c4f56', '#d0d2d6', '#4cb782', '#e5a550'];
 
 function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;

@@ -108,8 +108,8 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="go-app-frame go-grain">
       <aside
-        className={`go-sidebar hidden md:flex flex-col flex-shrink-0 transition-[width] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-          collapsed ? "w-[56px]" : "w-[220px]"
+        className={`go-sidebar hidden md:flex flex-col flex-shrink-0 transition-[width] duration-[var(--go-duration)] ease-[var(--go-ease-standard)] ${
+          collapsed ? "w-[56px]" : "w-[252px]"
         }`}
       >
         <div
@@ -210,6 +210,7 @@ export default function Layout({ children, currentPageName }) {
             className="flex-1"
             style={{ background: "var(--go-bg-overlay)" }}
             onClick={() => setMobileOpen(false)}
+            aria-hidden="true"
           />
         </div>
       )}

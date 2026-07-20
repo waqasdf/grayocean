@@ -277,7 +277,7 @@ export default function ComparisonPage() {
                         onClick={() => removeSSN(index)}
                         size="sm"
                         variant="ghost"
-                        className="text-[color:var(--go-text-secondary)] hover:text-red-400 flex-shrink-0"
+                        className="text-[color:var(--go-text-secondary)] hover:text-[color:var(--go-error)] flex-shrink-0"
                       >
                         Remove
                       </Button>
@@ -392,8 +392,8 @@ export default function ComparisonPage() {
                                 <Badge
                                   className={`text-[10px] md:text-xs ${
                                     result.isValid
-                                      ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                                      : 'bg-red-500/20 text-red-400 border-red-500/30'
+                                      ? 'bg-[var(--go-success-fill)] text-[color:var(--go-success)] border-[color:var(--go-success-border)]'
+                                      : 'bg-[var(--go-error-fill)] text-[color:var(--go-error)] border-[color:var(--go-error-border)]'
                                   }`}
                                 >
                                   {result.isValid ? 'Yes' : 'No'}
@@ -481,10 +481,10 @@ export default function ComparisonPage() {
                                 <Badge
                                   className={`text-[10px] md:text-xs ${
                                     result.riskLevel === 'high'
-                                      ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                                      ? 'bg-[var(--go-error-fill)] text-[color:var(--go-error)] border-[color:var(--go-error-border)]'
                                       : result.riskLevel === 'medium'
-                                      ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                                      : 'bg-green-500/20 text-green-400 border-green-500/30'
+                                      ? 'bg-[var(--go-warning-fill)] text-[color:var(--go-warning)] border-[color:var(--go-warning-border)]'
+                                      : 'bg-[var(--go-success-fill)] text-[color:var(--go-success)] border-[color:var(--go-success-border)]'
                                   }`}
                                 >
                                   {result.riskLevel.toUpperCase()}
