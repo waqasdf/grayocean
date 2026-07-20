@@ -1,0 +1,55 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "active",
+        "expired",
+        "cancelled"
+      ],
+      "default": "trial",
+      "description": "Current subscription status"
+    },
+    "subscription_expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the subscription expires"
+    },
+    "nmi_customer_vault_id": {
+      "type": "string",
+      "description": "NMI Customer Vault ID for recurring billing"
+    },
+    "nmi_subscription_id": {
+      "type": "string",
+      "description": "NMI Subscription ID"
+    },
+    "plan_type": {
+      "type": "string",
+      "enum": [
+        "annual"
+      ],
+      "default": "annual",
+      "description": "Subscription plan type"
+    },
+    "last_payment_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last successful payment date"
+    },
+    "trial_ends": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When trial period ends"
+    }
+  },
+  "required": [
+    "subscription_expires",
+    "nmi_customer_vault_id",
+    "nmi_subscription_id",
+    "last_payment_date",
+    "trial_ends"
+  ]
+}

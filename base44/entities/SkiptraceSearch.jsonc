@@ -1,0 +1,46 @@
+{
+  "name": "SkiptraceSearch",
+  "type": "object",
+  "properties": {
+    "search_name": {
+      "type": "string",
+      "description": "Display name for this search"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Person's full name"
+    },
+    "city": {
+      "type": "string",
+      "description": "City for search"
+    },
+    "state": {
+      "type": "string",
+      "description": "State for search"
+    },
+    "age": {
+      "type": "number",
+      "description": "Approximate age"
+    },
+    "results": {
+      "type": "object",
+      "description": "Full search results"
+    },
+    "confidence_score": {
+      "type": "number",
+      "description": "Overall confidence score 0-100"
+    },
+    "sources_found": {
+      "type": "number",
+      "description": "Number of sources found"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes about this search"
+    }
+  },
+  "required": [
+    "full_name",
+    "search_name"
+  ]
+}

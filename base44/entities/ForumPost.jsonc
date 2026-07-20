@@ -1,0 +1,40 @@
+{
+  "name": "ForumPost",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string",
+      "description": "The forum message content"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Name of the person posting"
+    },
+    "topic": {
+      "type": "string",
+      "enum": [
+        "general",
+        "ssn_analysis",
+        "address_intel",
+        "skiptrace",
+        "support",
+        "feedback"
+      ],
+      "default": "general",
+      "description": "Forum topic/category"
+    },
+    "parent_id": {
+      "type": "string",
+      "description": "ID of parent post if this is a reply"
+    },
+    "upvotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of upvotes"
+    }
+  },
+  "required": [
+    "message",
+    "author_name"
+  ]
+}

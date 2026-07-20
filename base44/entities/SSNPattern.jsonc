@@ -1,0 +1,45 @@
+{
+  "name": "SSNPattern",
+  "type": "object",
+  "properties": {
+    "area_number": {
+      "type": "string",
+      "description": "Area number range"
+    },
+    "state": {
+      "type": "string",
+      "description": "State associated with this area"
+    },
+    "years_active": {
+      "type": "string",
+      "description": "Years this area was actively issuing"
+    },
+    "estimated_issued": {
+      "type": "number",
+      "description": "Estimated numbers issued in this area"
+    },
+    "exhaustion_percentage": {
+      "type": "number",
+      "description": "Percentage of available numbers exhausted (0-100)"
+    },
+    "issuance_rate": {
+      "type": "string",
+      "enum": [
+        "very_low",
+        "low",
+        "medium",
+        "high",
+        "very_high"
+      ],
+      "description": "Rate of issuance for this area"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional context about this area pattern"
+    }
+  },
+  "required": [
+    "area_number",
+    "state"
+  ]
+}

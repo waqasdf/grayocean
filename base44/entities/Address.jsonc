@@ -1,0 +1,89 @@
+{
+  "name": "Address",
+  "type": "object",
+  "properties": {
+    "street_address": {
+      "type": "string",
+      "description": "Street address"
+    },
+    "city": {
+      "type": "string",
+      "description": "City name"
+    },
+    "state": {
+      "type": "string",
+      "description": "State abbreviation"
+    },
+    "zip_code": {
+      "type": "string",
+      "description": "ZIP code"
+    },
+    "is_valid": {
+      "type": "boolean",
+      "description": "Whether address exists and is deliverable"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude coordinate"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude coordinate"
+    },
+    "county": {
+      "type": "string",
+      "description": "County name"
+    },
+    "median_household_income": {
+      "type": "number",
+      "description": "Median household income for ZIP code area"
+    },
+    "income_bracket": {
+      "type": "string",
+      "enum": [
+        "low",
+        "below_average",
+        "average",
+        "above_average",
+        "high",
+        "very_high"
+      ],
+      "description": "Income classification based on national medians"
+    },
+    "population_density": {
+      "type": "number",
+      "description": "People per square mile"
+    },
+    "area_type": {
+      "type": "string",
+      "enum": [
+        "urban",
+        "suburban",
+        "rural"
+      ],
+      "description": "Area classification"
+    },
+    "median_home_value": {
+      "type": "number",
+      "description": "Median home value in area"
+    },
+    "poverty_rate": {
+      "type": "number",
+      "description": "Percentage of population below poverty line"
+    },
+    "education_bachelor_plus": {
+      "type": "number",
+      "description": "Percentage with bachelor's degree or higher"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes about this address"
+    }
+  },
+  "required": [
+    "street_address",
+    "city",
+    "state",
+    "zip_code"
+  ]
+}

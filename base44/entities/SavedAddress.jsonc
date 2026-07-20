@@ -1,0 +1,54 @@
+{
+  "name": "SavedAddress",
+  "type": "object",
+  "properties": {
+    "street_address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip_code": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "neighborhood_score": {
+      "type": "number"
+    },
+    "median_household_income": {
+      "type": "number"
+    },
+    "median_home_value": {
+      "type": "number"
+    },
+    "collection_name": {
+      "type": "string",
+      "description": "Optional collection/tag for organizing addresses"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes about this address"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "default": false
+    },
+    "full_data": {
+      "type": "object",
+      "description": "Complete analysis data"
+    }
+  },
+  "required": [
+    "street_address",
+    "city",
+    "state"
+  ]
+}

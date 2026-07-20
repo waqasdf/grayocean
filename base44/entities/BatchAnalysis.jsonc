@@ -1,0 +1,59 @@
+{
+  "name": "BatchAnalysis",
+  "type": "object",
+  "properties": {
+    "batch_name": {
+      "type": "string",
+      "description": "Name for this batch analysis"
+    },
+    "ssn_list": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of SSNs analyzed in this batch"
+    },
+    "total_count": {
+      "type": "number",
+      "description": "Total number of SSNs in batch"
+    },
+    "valid_count": {
+      "type": "number",
+      "description": "Number of valid SSNs"
+    },
+    "invalid_count": {
+      "type": "number",
+      "description": "Number of invalid SSNs"
+    },
+    "high_risk_count": {
+      "type": "number",
+      "description": "Number of high-risk SSNs"
+    },
+    "average_risk_score": {
+      "type": "number",
+      "description": "Average risk score across all SSNs"
+    },
+    "states_represented": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "States found in this batch"
+    },
+    "analysis_summary": {
+      "type": "string",
+      "description": "AI-generated summary of the batch"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Detailed results for each SSN"
+    }
+  },
+  "required": [
+    "batch_name",
+    "ssn_list"
+  ]
+}

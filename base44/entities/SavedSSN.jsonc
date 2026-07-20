@@ -1,0 +1,48 @@
+{
+  "name": "SavedSSN",
+  "type": "object",
+  "properties": {
+    "ssn": {
+      "type": "string",
+      "description": "The SSN that was saved"
+    },
+    "area_number": {
+      "type": "string",
+      "description": "First 3 digits of SSN"
+    },
+    "group_number": {
+      "type": "string",
+      "description": "Middle 2 digits of SSN"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Last 4 digits of SSN"
+    },
+    "state": {
+      "type": "string",
+      "description": "State where SSN would have been issued"
+    },
+    "year_range": {
+      "type": "string",
+      "description": "Approximate years when SSN would have been issued"
+    },
+    "risk_score": {
+      "type": "number",
+      "description": "Risk score at time of saving"
+    },
+    "validation_issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of validation issues"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes about this SSN"
+    }
+  },
+  "required": [
+    "ssn"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "AddressComparison",
+  "type": "object",
+  "properties": {
+    "comparison_name": {
+      "type": "string",
+      "description": "Name for this comparison"
+    },
+    "addresses": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Array of address data to compare"
+    },
+    "winner": {
+      "type": "string",
+      "description": "Which address scored highest"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "comparison_name",
+    "addresses"
+  ]
+}
