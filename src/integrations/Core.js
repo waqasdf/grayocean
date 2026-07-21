@@ -5,9 +5,20 @@ import { supabase } from "@/lib/supabase";
  * Set OPENAI_API_KEY (or compatible) as a function secret.
  */
 export async function InvokeLLM(options = {}) {
-  const { data, error } = await supabase.functions.invoke("invoke-llm", {
+  const timeoutMs = 20000;
+  const invoke = supabase.functions.invoke("invoke-llm", {
     body: options,
   });
+
+  const { data, error } = await Promise.race([
+    invoke,
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("LLM request timed out")),
+        timeoutMs
+      )
+    ),
+  ]);
 
   if (error) {
     console.error("InvokeLLM failed:", error);

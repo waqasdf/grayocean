@@ -588,72 +588,79 @@ Be technical but clear. Focus on facts and historical data. Make it feel like ad
     setError('');
     setAiInsights(null);
     setDeceasedData(null);
-    setShowHomeGenerator(false);
+    setIsLoadingInsights(false);
+    setIsLoadingDeceased(false);
 
-    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const numbers = ssnValue.replace(/\D/g, '');
-    
-    if (numbers.length !== 9) {
-      setError('SSN must be 9 digits');
-      setIsValid(false);
-      setResults(null);
-      setIsProcessing(false);
-      return;
-    }
+      const numbers = String(ssnValue || "").replace(/\D/g, "");
 
-    const area = numbers.substring(0, 3);
-    const group = numbers.substring(3, 5);
-    const serial = numbers.substring(5, 9);
+      if (numbers.length !== 9) {
+        setError("SSN must be 9 digits");
+        setIsValid(false);
+        setResults(null);
+        return;
+      }
 
-    const validation = performAdvancedValidation(area, group, serial);
+      const area = numbers.substring(0, 3);
+      const group = numbers.substring(3, 5);
+      const serial = numbers.substring(5, 9);
 
-    const endTime = performance.now();
-    setProcessingTime(Math.round(endTime - startTime));
-    
-    setIsValid(validation.isValid);
-    
-    const state = getStateFromArea(area);
-    const yearRange = getYearRange(area);
+      const validation = performAdvancedValidation(area, group, serial);
 
-    const resultData = {
-      ssn: ssnValue,
-      area_number: area,
-      group_number: group,
-      serial_number: serial,
-      state,
-      year_range: yearRange,
-      is_valid: validation.isValid,
-      validationIssues: validation.validationIssues
-    };
+      const endTime = performance.now();
+      setProcessingTime(Math.round(endTime - startTime));
 
-    setResults(resultData);
-    
-    const risk = calculateRiskScore(resultData);
-    setRiskScore(risk);
+      setIsValid(validation.isValid);
 
-    setIsProcessing(false);
+      const state = getStateFromArea(area);
+      const yearRange = getYearRange(area);
 
-    generateAIInsights(resultData, risk);
-    checkDeathRecords(resultData);
-
-    const coordinates = stateCoordinates[state];
-    if (coordinates) {
-      const newSearch = {
+      const resultData = {
+        ssn: ssnValue,
+        area_number: area,
+        group_number: group,
+        serial_number: serial,
         state,
-        coordinates,
-        isValid: validation.isValid,
-        riskLevel: risk.risk_level,
-        riskScore: risk.score,
-        timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        year_range: yearRange,
+        is_valid: validation.isValid,
+        validationIssues: validation.validationIssues,
       };
-      
-      const updatedHistory = [...searchHistory, newSearch].slice(-10);
-      setSearchHistory(updatedHistory);
-    }
 
-    // Skip saving for free version
-    // Analytics disabled for public access
+      setResults(resultData);
+
+      const risk = calculateRiskScore(resultData);
+      setRiskScore(risk);
+
+      // Show core results immediately; enrichments run in background
+      generateAIInsights(resultData, risk);
+      checkDeathRecords(resultData);
+
+      const coordinates = stateCoordinates[state];
+      if (coordinates) {
+        const newSearch = {
+          state,
+          coordinates,
+          isValid: validation.isValid,
+          riskLevel: risk.risk_level,
+          riskScore: risk.score,
+          timestamp: new Date().toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
+
+        setSearchHistory((prev) => [...prev, newSearch].slice(-10));
+      }
+    } catch (err) {
+      console.error("SSN validation failed:", err);
+      setError(err?.message || "Lookup failed. Please try again.");
+      setResults(null);
+      setIsValid(false);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleSSNChange = (value) => {
