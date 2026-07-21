@@ -49,39 +49,39 @@ export default function SaveAddressButton({ addressData }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full h-8 go-pill-btn text-[13px]">
+        <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-xs">
           Save Address
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-[var(--go-bg-card)] border-[color:var(--go-border)] shadow-none">
+      <DialogContent className="bg-[hsl(0,0%,12%)] border-white/10">
         <DialogHeader>
-          <DialogTitle className="text-[13px] font-semibold text-[color:var(--go-text)]">Save Address</DialogTitle>
+          <DialogTitle className="text-white">Save Address</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 pt-3">
+        <div className="space-y-4 pt-4">
           <div>
-            <label className="go-label">Collection Name</label>
+            <label className="text-xs text-gray-400 mb-2 block">Collection Name</label>
             <Input
               placeholder="e.g., Investment Prospects, Client Sites"
               value={collectionName}
               onChange={(e) => setCollectionName(e.target.value)}
-              className="go-pill-input"
+              className="bg-white/5 border-white/10 text-white"
             />
           </div>
           
           <div>
-            <label className="go-label">Notes (Optional)</label>
+            <label className="text-xs text-gray-400 mb-2 block">Notes (Optional)</label>
             <Textarea
               placeholder="Add any notes about this address..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="bg-[var(--go-input-bg)] border-[color:var(--go-input-border)] text-[color:var(--go-input-text)] text-[13px] h-24 shadow-none"
+              className="bg-white/5 border-white/10 text-white h-24"
             />
           </div>
 
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full h-8 go-pill-btn text-[13px]"
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
           >
             {isSaving ? 'Saving...' : 'Save Address'}
           </Button>

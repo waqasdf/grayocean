@@ -1,0 +1,74 @@
+---
+description: GrayOcean UI design system — tokens, components, and presentation-only styling
+globs: src/**/*.{jsx,js,css}
+alwaysApply: false
+---
+
+# UI Design System
+
+Use this rule for presentation and styling. Combine with `project-protection.mdc`: visuals may change; behavior must not.
+
+## Stack & sources of truth
+
+- Vite + React 18 (JSX), Tailwind, shadcn under `src/components/ui/**`
+- Tokens: `src/index.css` (`--go-*`) + Tailwind `go-*` / `bg-go-*` / `text-go-*`
+- Prefer tokens over one-off hex / `border-white/` / `text-[10px]`
+- Icons: `lucide-react`
+- Imports: `@/…`
+
+## Token quick reference
+
+| Role | CSS | Tailwind examples |
+|------|-----|-------------------|
+| App background | `--go-bg` | `bg-go-bg` / `bg-background` |
+| Surface | `--go-surface` | `bg-go-surface` / `bg-card` |
+| Muted surface | `--go-surface-muted` | `bg-go-surface-muted` |
+| Text | `--go-text` / secondary / muted | `text-go-text`, `text-go-text-muted` |
+| Border | `--go-border` / strong | `border-go-border` |
+| Brand | `--go-primary` / hover | `bg-go-primary`, `hover:bg-go-primary-hover` |
+| Status | success / warning / danger / info | `text-go-success`, `bg-go-danger-muted` |
+| Type | page / section / body / label / meta | `text-go-page`, `text-go-body`, `text-go-meta` |
+| Radius | `--go-radius*` | `rounded-go`, `rounded-go-sm`, `rounded-go-lg` |
+| Shadow | `--go-shadow-*` | `shadow-go-sm` |
+| Control height | `--go-control-h` | `h-go-control` (40px) |
+
+Light theme is default. Dark uses `.dark` class with non–pure-black surfaces.
+
+## Shared components (`src/components/shared`)
+
+Prefer these for new presentation work:
+
+- `PageHeader`, `SectionHeader`, `DataPanel`, `DefinitionList`
+- `StatusBadge` (icon + text; replace MinimalBadge for new UI)
+- `EmptyState`, `LoadingState`, `ErrorState`
+- `SearchInput`, `IconButton`, `CopyButton`
+
+Import from `@/components/shared` or specific files. Keep them presentational only.
+
+## Presentational rules
+
+- Prefer existing shadcn primitives; do not fork `src/components/ui/**` unless necessary
+- New UI helpers stay presentational: no new API/entity/auth calls inside them
+- Restyle loading / error / empty / success UI without changing when they appear or what data they use
+- Responsive and a11y improvements are encouraged (focus, labels, contrast, keyboard) without changing flows
+- Microcopy may be clarified; meaning and outcomes must stay the same
+- Avoid AI-generic chrome: glassmorphism, neon, pulse décor, gradient text, purple accent spam
+
+## Layout & hierarchy
+
+- Match nearby pages/components; one sibling pattern over inventing new folders/libs
+- Improve spacing, type scale, and hierarchy with Tailwind + `var(--go-*)`
+- Animations: subtle presence/hierarchy only — do not gate or replace business actions
+- Respect `prefers-reduced-motion`
+
+## Out of scope for UI work
+
+- `base44/entities/**`, entity wrappers, `localClient` / Base44 client query shapes
+- Auth context, route guards, permissions, env wiring
+- Validation schemas, calculations, data transforms, mock data swaps
+
+## Change discipline
+
+- Small diffs: style and structure first; preserve handlers and query keys
+- Before edit: list preserved logic in the file (even briefly)
+- After edit: run build; fix only UI-caused failures

@@ -1,3 +1,3 @@
-import { db } from '@/api/localClient'
-export const SkiptraceSearch = db.entities.SkiptraceSearch
-export default SkiptraceSearch
+import { createEntity } from "@/lib/entityClient";
+
+export const SkiptraceSearch = createEntity("skiptrace_searches");

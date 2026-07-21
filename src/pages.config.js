@@ -50,6 +50,7 @@
 import API from './pages/API';
 import Account from './pages/Account';
 import AddressLookup from './pages/AddressLookup';
+import Admin from './pages/Admin';
 import BatchAnalysis from './pages/BatchAnalysis';
 import Comparison from './pages/Comparison';
 import Forum from './pages/Forum';
@@ -62,6 +63,7 @@ export const PAGES = {
     "API": API,
     "Account": Account,
     "AddressLookup": AddressLookup,
+    "Admin": Admin,
     "BatchAnalysis": BatchAnalysis,
     "Comparison": Comparison,
     "Forum": Forum,

@@ -1,3 +1,3 @@
-import { db } from '@/api/localClient'
-export const SSNLookup = db.entities.SSNLookup
-export default SSNLookup
+import { createEntity } from "@/lib/entityClient";
+
+export const SSNLookup = createEntity("ssn_lookups");

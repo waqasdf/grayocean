@@ -71,13 +71,13 @@ function MapUpdater({ center }) {
 const getRiskColor = (riskLevel) => {
   switch (riskLevel) {
     case 'high':
-      return '#e5484d';
+      return '#ef4444';
     case 'medium':
-      return '#e5a550';
+      return '#f59e0b';
     case 'low':
-      return '#4cb782';
+      return '#10b981';
     default:
-      return '#62666d';
+      return '#6b7280';
   }
 };
 
@@ -91,22 +91,19 @@ export default function GeoMap({ searches = [] }) {
   const mapCenter = latestSearch?.coordinates || defaultCenter;
 
   return (
-    <div className="go-map-container">
-      <div
-        className="flex items-center justify-between p-4 border-b"
-        style={{ borderColor: 'var(--go-border)', background: 'var(--go-bg-panel)' }}
-      >
-        <h3 className="text-[13px] font-medium" style={{ color: 'var(--go-text)' }}>Geographic Distribution</h3>
-        <div className="text-[12px]" style={{ color: 'var(--go-text-muted)' }}>
+    <div className="bg-[hsl(0,0%,9%)] border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/30 transition-all">
+      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-500/5 via-gray-500/5 to-blue-500/5">
+        <h3 className="text-xs font-medium text-white">Geographic Distribution</h3>
+        <div className="text-[10px] text-gray-500">
           {searches.length} {searches.length === 1 ? 'lookup' : 'lookups'}
         </div>
       </div>
       
-      <div className="relative h-[400px]" style={{ background: 'var(--go-bg)' }}>
+      <div className="relative h-[240px] bg-[hsl(0,0%,9%)] sm:h-[320px] md:h-[400px]">
         <MapContainer
           center={defaultCenter}
           zoom={4}
-          style={{ height: '100%', width: '100%', background: 'var(--go-bg)' }}
+          style={{ height: '100%', width: '100%', background: 'hsl(0, 0%, 9%)' }}
           zoomControl={false}
         >
           <TileLayer
@@ -131,19 +128,16 @@ export default function GeoMap({ searches = [] }) {
                   weight={2}
                 >
                   <Popup className="custom-popup">
-                    <div className="text-[12px]">
-                      <div className="font-medium mb-1" style={{ color: 'var(--go-text)' }}>{search.state}</div>
-                      <div className="mb-1" style={{ color: 'var(--go-text-secondary)' }}>{search.timestamp}</div>
+                    <div className="text-[10px]">
+                      <div className="font-medium text-white mb-1">{search.state}</div>
+                      <div className="text-gray-400 mb-1">{search.timestamp}</div>
                       <div 
-                        className="mt-1 text-[12px] font-medium"
+                        className="mt-1 text-[10px] font-medium"
                         style={{ color }}
                       >
                         {getRiskLabel(search.riskLevel, search.riskScore)}
                       </div>
-                      <div
-                        className="text-[12px] mt-0.5"
-                        style={{ color: search.isValid ? 'var(--go-text-secondary)' : 'var(--go-text-muted)' }}
-                      >
+                      <div className={`text-[10px] mt-0.5 ${search.isValid ? 'text-gray-400' : 'text-gray-500'}`}>
                         {search.isValid ? 'Valid Format' : 'Invalid Format'}
                       </div>
                     </div>
@@ -155,21 +149,18 @@ export default function GeoMap({ searches = [] }) {
         </MapContainer>
       </div>
 
-      <div
-        className="flex items-center justify-center gap-6 p-3 border-t"
-        style={{ borderColor: 'var(--go-border)', background: 'var(--go-bg-panel)' }}
-      >
+      <div className="flex items-center justify-center gap-6 p-3 border-t border-white/10 bg-gradient-to-r from-blue-500/5 via-gray-500/5 to-blue-500/5">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--go-success)' }}></div>
-          <span className="text-[12px]" style={{ color: 'var(--go-text-secondary)' }}>Low Risk</span>
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"></div>
+          <span className="text-[10px] text-gray-400">Low Risk</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--go-warning)' }}></div>
-          <span className="text-[12px]" style={{ color: 'var(--go-text-secondary)' }}>Medium Risk</span>
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500"></div>
+          <span className="text-[10px] text-gray-400">Medium Risk</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--go-error)' }}></div>
-          <span className="text-[12px]" style={{ color: 'var(--go-text-secondary)' }}>High Risk</span>
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-red-500 to-orange-500"></div>
+          <span className="text-[10px] text-gray-400">High Risk</span>
         </div>
       </div>
     </div>

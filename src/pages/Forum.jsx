@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
+import { db } from '@/api/db';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { db } from '@/api/localClient';
-
 import { MinimalBadge } from '@/components/ui/minimal-badge';
-import { MessageSquare, ThumbsUp, Send, Users } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { MessageSquare, ThumbsUp, Send } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import moment from 'moment';
+import {
+  WorkspacePage,
+  WorkspacePanel,
+  PrimaryButton,
+  GhostButton,
+} from '@/components/dashboard';
 
 export default function ForumPage() {
   const [message, setMessage] = useState('');
@@ -86,15 +88,6 @@ export default function ForumPage() {
   const topLevelPosts = filteredPosts.filter(post => !post.parent_id);
   const getReplies = (postId) => filteredPosts.filter(post => post.parent_id === postId);
 
-  const topicColors = {
-    general: 'info',
-    ssn_analysis: 'info',
-    address_intel: 'info',
-    skiptrace: 'success',
-    support: 'warning',
-    feedback: 'neutral'
-  };
-
   const topicLabels = {
     general: 'General',
     ssn_analysis: 'SSN Analysis',
@@ -104,115 +97,92 @@ export default function ForumPage() {
     feedback: 'Feedback'
   };
 
+  const chipClass = (active) =>
+    `rounded-[8px] border px-3 py-1.5 text-[12px] font-medium go-transition ${
+      active
+        ? 'border-go-primary/40 bg-go-primary/15 text-go-text'
+        : 'border-go-border bg-transparent text-go-text-muted hover:border-go-border-strong hover:bg-white/[0.04] hover:text-go-text-secondary'
+    }`;
+
   return (
-    <div className="min-h-screen bg-[var(--go-bg)]">
-      {/* Page header */}
-      <div className="border-b border-[color:var(--go-border)] bg-[var(--go-bg)]">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 py-5 md:py-6">
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="go-page-title">Community Forum</h1>
-                <p className="go-page-subtitle mt-1.5">Ask questions and share notes</p>
-              </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[color:var(--go-border)] bg-[var(--go-bg-panel)]">
-                <div className="w-1 h-1 rounded-full bg-[var(--go-success)]" />
-                <span className="text-[12px] text-[color:var(--go-text-muted)]">{posts.length} posts</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-      <div className="max-w-4xl mx-auto px-4 md:px-6 space-y-5 py-5 md:py-6">
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+    <WorkspacePage
+      title="Community Forum"
+      description="Share insights, ask questions, and get support."
+      maxWidth="max-w-[900px]"
+      actions={
+        <span className="text-[13px] text-go-text-muted">{posts.length} posts</span>
+      }
+    >
+      <div className="space-y-6">
+        <WorkspacePanel
+          title={replyingTo ? 'Post reply' : 'New post'}
+          actions={
+            replyingTo ? (
+              <MinimalBadge variant="neutral" size="xs">
+                Replying to thread
+              </MinimalBadge>
+            ) : null
+          }
         >
-          <Card className="go-panel shadow-none">
-            <CardHeader className="border-b border-[color:var(--go-border)] px-4 py-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-[12px] font-medium text-[color:var(--go-text-secondary)] flex items-center gap-2">
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  {replyingTo ? 'Post Reply' : 'New Post'}
-                </h2>
-                {replyingTo && (
-                  <MinimalBadge variant="info" size="xs">
-                    Replying to thread
-                  </MinimalBadge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <Input
-                    placeholder="Your name"
-                    value={authorName}
-                    onChange={(e) => setAuthorName(e.target.value)}
-                    className="bg-[var(--go-bg-panel)] border-[color:var(--go-border)] text-[color:var(--go-text)] placeholder:text-[color:var(--go-text-muted)] md:w-48 flex-shrink-0"
-                  />
-                  {!replyingTo && (
-                    <div className="flex flex-wrap gap-2 items-center">
-                      {Object.entries(topicLabels).map(([key, label]) => (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => setTopic(key)}
-                          className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border ${
-                            topic === key
-                              ? 'bg-[var(--go-accent-soft)] border-[color:var(--go-accent-border)] text-[color:var(--go-accent-text)]'
-                              : 'bg-[var(--go-bg-panel)] border-[color:var(--go-border)] text-[color:var(--go-text-muted)] hover:text-[color:var(--go-text-body)] hover:border-white/20'
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <Textarea
-                  placeholder="Share your thoughts..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="bg-[var(--go-bg-panel)] border-[color:var(--go-border)] text-[color:var(--go-text)] placeholder:text-[color:var(--go-text-muted)] min-h-24"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    type="submit"
-                    disabled={createPostMutation.isPending || !message.trim() || !authorName.trim()}
-                    className="bg-white/10 hover:bg-white/20 text-[color:var(--go-text)] border border-white/20"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {createPostMutation.isPending ? 'Posting...' : 'Post'}
-                  </Button>
-                  {replyingTo && (
-                    <Button
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <Input
+                placeholder="Your name"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                className="md:w-48 md:flex-shrink-0"
+              />
+              {!replyingTo && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {Object.entries(topicLabels).map(([key, label]) => (
+                    <button
+                      key={key}
                       type="button"
-                      variant="outline"
-                      onClick={() => setReplyingTo(null)}
-                      className="border-[color:var(--go-border)]"
+                      onClick={() => setTopic(key)}
+                      className={chipClass(topic === key)}
                     >
-                      Cancel Reply
-                    </Button>
-                  )}
+                      {label}
+                    </button>
+                  ))}
                 </div>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
+              )}
+            </div>
+            <Textarea
+              placeholder="Share your thoughts..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="min-h-24"
+            />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <PrimaryButton
+                type="submit"
+                className="w-full sm:w-auto"
+                disabled={createPostMutation.isPending || !message.trim() || !authorName.trim()}
+              >
+                <Send className="size-4" />
+                {createPostMutation.isPending ? 'Posting...' : 'Post'}
+              </PrimaryButton>
+              {replyingTo && (
+                <GhostButton
+                  type="button"
+                  className="w-full sm:w-auto"
+                  onClick={() => setReplyingTo(null)}
+                >
+                  Cancel reply
+                </GhostButton>
+              )}
+            </div>
+          </form>
+        </WorkspacePanel>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-[color:var(--go-text-muted)]">Filter:</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[13px] text-go-text-muted">Filter:</span>
           {['all', ...Object.keys(topicLabels)].map((key) => (
             <button
               key={key}
+              type="button"
               onClick={() => setFilterTopic(key)}
-              className={`px-3 py-1 rounded-lg text-[12px] font-medium transition-all border ${
-                filterTopic === key
-                  ? 'bg-[var(--go-accent-soft)] border-[color:var(--go-accent-border)] text-[color:var(--go-accent-text)]'
-                  : 'bg-[var(--go-bg-panel)] border-[color:var(--go-border)] text-[color:var(--go-text-muted)] hover:text-[color:var(--go-text-body)] hover:border-white/20'
-              }`}
+              className={chipClass(filterTopic === key)}
             >
               {key === 'all' ? 'All' : topicLabels[key]}
             </button>
@@ -221,17 +191,17 @@ export default function ForumPage() {
 
         <div className="space-y-4">
           {isLoading ? (
-            <div className="text-center py-12">
-              <div className="w-8 h-8 border-2 border-[color:var(--go-accent-border)] border-t-[color:var(--go-accent)] rounded-full animate-spin mx-auto" />
-              <p className="text-xs text-[color:var(--go-text-secondary)] mt-3">Loading posts...</p>
+            <div className="py-12 text-center">
+              <div className="mx-auto size-8 animate-spin rounded-full border-2 border-go-border border-t-go-primary" />
+              <p className="mt-3 text-[13px] text-go-text-muted">Loading posts...</p>
             </div>
           ) : topLevelPosts.length === 0 ? (
-            <Card className="border border-[color:var(--go-border)] bg-[var(--go-bg-panel)] ">
-              <CardContent className="p-12 text-center">
-                <MessageSquare className="w-12 h-12 text-[color:var(--go-text-meta)] mx-auto mb-3" />
-                <p className="text-[11px] text-[color:var(--go-text-muted)]">No posts yet. Be the first to start a conversation!</p>
-              </CardContent>
-            </Card>
+            <div className="rounded-[10px] border border-go-border bg-go-surface p-12 text-center">
+              <MessageSquare className="mx-auto mb-3 size-8 text-go-text-muted" />
+              <p className="text-[13px] text-go-text-muted">
+                No posts yet. Be the first to start a conversation!
+              </p>
+            </div>
           ) : (
             <AnimatePresence>
               {topLevelPosts.map((post, index) => {
@@ -239,76 +209,96 @@ export default function ForumPage() {
                 return (
                   <motion.div
                     key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: index * 0.03 }}
                   >
-                    <Card className="border border-[color:var(--go-border)] bg-[var(--go-bg-card)] hover:border-[color:var(--go-border)] transition-all">
-                      <CardContent className="p-4">
-                        <div className="flex gap-3">
-                          <div className="flex flex-col items-center gap-1">
-                            <button
-                              onClick={() => handleUpvote(post.id, post.upvotes)}
-                              className={`transition-colors ${
-                                upvotedPosts.has(post.id) 
-                                  ? 'text-[color:var(--go-accent-text)] hover:text-[color:var(--go-text-secondary)]' 
-                                  : 'text-[color:var(--go-text-secondary)] hover:text-[color:var(--go-accent-text)]'
-                              }`}
-                            >
-                              <ThumbsUp className={`w-4 h-4 ${upvotedPosts.has(post.id) ? 'fill-blue-400' : ''}`} />
-                            </button>
-                            <span className="text-xs font-mono text-[color:var(--go-text-muted)]">{post.upvotes || 0}</span>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-xs font-medium text-[color:var(--go-text)]">{post.author_name}</span>
-                              <MinimalBadge variant={topicColors[post.topic]} size="xs">
-                                {topicLabels[post.topic]}
-                              </MinimalBadge>
-                              <span className="text-xs text-[color:var(--go-text-meta)]">{moment(post.created_date).fromNow()}</span>
-                            </div>
-                            <p className="text-[11px] text-[color:var(--go-text-body)] mb-3 whitespace-pre-wrap leading-relaxed">{post.message}</p>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setReplyingTo(post.id);
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                              }}
-                              className="text-xs text-[color:var(--go-text-secondary)] hover:text-[color:var(--go-text)]"
-                            >
-                              <MessageSquare className="w-3 h-3 mr-1" />
-                              Reply {replies.length > 0 && `(${replies.length})`}
-                            </Button>
-
-                            {replies.length > 0 && (
-                              <div className="mt-4 pl-4 border-l-2 border-[color:var(--go-border)] space-y-3">
-                                {replies.map(reply => (
-                                  <div key={reply.id} className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs font-medium text-[color:var(--go-text)]">{reply.author_name}</span>
-                                      <span className="text-xs text-[color:var(--go-text-meta)]">{moment(reply.created_date).fromNow()}</span>
-                                    </div>
-                                    <p className="text-xs text-[color:var(--go-text-secondary)] whitespace-pre-wrap">{reply.message}</p>
-                                    <button
-                                      onClick={() => handleUpvote(reply.id, reply.upvotes)}
-                                      className={`flex items-center gap-1 transition-colors ${
-                                        upvotedPosts.has(reply.id)
-                                          ? 'text-[color:var(--go-accent-text)] hover:text-[color:var(--go-text-muted)]'
-                                          : 'text-[color:var(--go-text-muted)] hover:text-[color:var(--go-accent-text)]'
-                                      }`}
-                                    >
-                                      <ThumbsUp className={`w-3 h-3 ${upvotedPosts.has(reply.id) ? 'fill-blue-400' : ''}`} />
-                                      <span className="text-xs">{reply.upvotes || 0}</span>
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                    <div className="rounded-[10px] border border-go-border bg-go-surface p-4 go-transition hover:border-go-border-strong">
+                      <div className="flex gap-3">
+                        <div className="flex flex-col items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleUpvote(post.id, post.upvotes)}
+                            aria-label="Upvote"
+                            className={`inline-flex size-10 items-center justify-center rounded-[8px] go-transition ${
+                              upvotedPosts.has(post.id)
+                                ? 'text-go-primary hover:text-go-text-secondary'
+                                : 'text-go-text-muted hover:text-go-text'
+                            }`}
+                          >
+                            <ThumbsUp
+                              className={`size-4 ${upvotedPosts.has(post.id) ? 'fill-current' : ''}`}
+                            />
+                          </button>
+                          <span className="font-mono text-[12px] text-go-text-muted">
+                            {post.upvotes || 0}
+                          </span>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <span className="text-[13px] font-medium text-go-text">
+                              {post.author_name}
+                            </span>
+                            <MinimalBadge variant="neutral" size="xs">
+                              {topicLabels[post.topic]}
+                            </MinimalBadge>
+                            <span className="text-[12px] text-go-text-muted">
+                              {moment(post.created_date).fromNow()}
+                            </span>
+                          </div>
+                          <p className="mb-3 whitespace-pre-wrap text-[13px] leading-relaxed text-go-text-secondary">
+                            {post.message}
+                          </p>
+                          <GhostButton
+                            type="button"
+                            className="h-8 px-2.5 text-[12px]"
+                            onClick={() => {
+                              setReplyingTo(post.id);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                          >
+                            <MessageSquare className="size-3" />
+                            Reply {replies.length > 0 && `(${replies.length})`}
+                          </GhostButton>
+
+                          {replies.length > 0 && (
+                            <div className="mt-4 space-y-3 border-l-2 border-go-border pl-4">
+                              {replies.map((reply) => (
+                                <div key={reply.id} className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[13px] font-medium text-go-text">
+                                      {reply.author_name}
+                                    </span>
+                                    <span className="text-[12px] text-go-text-muted">
+                                      {moment(reply.created_date).fromNow()}
+                                    </span>
+                                  </div>
+                                  <p className="whitespace-pre-wrap text-[13px] text-go-text-secondary">
+                                    {reply.message}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpvote(reply.id, reply.upvotes)}
+                                    className={`flex items-center gap-1 go-transition ${
+                                      upvotedPosts.has(reply.id)
+                                        ? 'text-go-primary hover:text-go-text-muted'
+                                        : 'text-go-text-muted hover:text-go-text'
+                                    }`}
+                                  >
+                                    <ThumbsUp
+                                      className={`size-3 ${
+                                        upvotedPosts.has(reply.id) ? 'fill-current' : ''
+                                      }`}
+                                    />
+                                    <span className="text-[12px]">{reply.upvotes || 0}</span>
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -316,6 +306,6 @@ export default function ForumPage() {
           )}
         </div>
       </div>
-    </div>
+    </WorkspacePage>
   );
 }

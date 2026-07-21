@@ -75,19 +75,19 @@ export default function IssuanceInfo({ state, yearRange, estimatedAge, isValid, 
       return {
         label: 'LIKELY ISSUED',
         sublabel: 'This SSN format was allocated by the SSA',
-        fill: 'var(--go-accent)',
-        textColor: 'text-[color:var(--go-accent)]',
-        borderColor: 'var(--go-accent-border)',
-        indicator: 'bg-[color:var(--go-accent)]'
+        gradient: 'from-blue-500 to-gray-500',
+        textColor: 'text-blue-400',
+        borderColor: 'border-blue-500/30',
+        indicator: 'bg-blue-400'
       };
     } else {
       return {
         label: 'NOT ISSUED',
         sublabel: 'This SSN was never allocated by the SSA',
-        fill: 'var(--go-error)',
-        textColor: 'text-[color:var(--go-error)]',
-        borderColor: 'var(--go-error-border)',
-        indicator: 'bg-[color:var(--go-error)]'
+        gradient: 'from-red-500 to-orange-500',
+        textColor: 'text-red-400',
+        borderColor: 'border-red-500/30',
+        indicator: 'bg-red-400'
       };
     }
   };
@@ -104,87 +104,60 @@ export default function IssuanceInfo({ state, yearRange, estimatedAge, isValid, 
   return (
     <div className="space-y-4">
       <motion.div
-        initial={{ opacity: 0, y: 4 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card
-          className="rounded-lg border"
-          style={{ background: 'var(--go-bg-card)', borderColor: 'var(--go-border)' }}
-        >
-          <CardContent className="p-4">
+        <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-sm">
+          <CardContent className="p-6">
             <div className="flex items-start gap-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 border"
-                style={{
-                  background: 'var(--go-bg-panel)',
-                  borderColor: issuanceStatus.borderColor,
-                }}
-              >
-                <div className={`w-3 h-3 rounded-full ${issuanceStatus.indicator}`}></div>
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/5 border ${issuanceStatus.borderColor}`}>
+                <div className={`w-4 h-4 rounded-full ${issuanceStatus.indicator}`}></div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <div className={`text-[12px] font-medium ${issuanceStatus.textColor} uppercase tracking-wider`}>
+                  <div className={`text-xs font-bold ${issuanceStatus.textColor} uppercase tracking-wider`}>
                     {issuanceStatus.label}
                   </div>
                   <MinimalBadge variant={isValid ? 'info' : 'neutral'} size="xs">
                     {isValid ? 'Valid' : 'Invalid'}
                   </MinimalBadge>
                   {!isSubscribed && (
-                    <MinimalBadge variant="cyan" size="xs">
+                    <MinimalBadge variant="purple" size="xs">
                       Partial View
                     </MinimalBadge>
                   )}
                 </div>
-                <div className="text-[12px] mb-4" style={{ color: 'var(--go-text-secondary)' }}>
+                <div className="text-[10px] text-gray-300 mb-4">
                   {issuanceStatus.sublabel}
                 </div>
 
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-[11px] uppercase tracking-wider font-medium" style={{ color: 'var(--go-text-muted)' }}>Analysis Confidence</span>
+                  <span className="text-[10px] text-gray-600 uppercase tracking-wider font-medium">Analysis Confidence</span>
                   <div className="flex-1 max-w-[140px]">
-                    <div
-                      className="h-1.5 rounded-full overflow-hidden"
-                      style={{ background: 'var(--go-bg-panel)' }}
-                    >
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${confidenceScore}%` }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        className="h-full rounded-full"
-                        style={{ background: issuanceStatus.fill }}
+                        className={`h-full rounded-full bg-gradient-to-r ${issuanceStatus.gradient}`}
                       />
                     </div>
                   </div>
-                  <span className={`text-[12px] font-semibold font-mono ${issuanceStatus.textColor}`}>
+                  <span className={`text-[10px] font-bold font-mono ${issuanceStatus.textColor}`}>
                     {confidenceScore}%
                   </span>
                 </div>
 
                 {isValid && (
-                  <div
-                    className="text-[12px] rounded-lg border p-3"
-                    style={{
-                      color: 'var(--go-text-secondary)',
-                      background: 'var(--go-bg-panel)',
-                      borderColor: 'var(--go-border)',
-                    }}
-                  >
-                    <span className="font-medium" style={{ color: 'var(--go-text)' }}>Note:</span> This indicates the SSN follows valid SSA formatting rules and was allocated for use. It does not verify if it belongs to a specific individual.
+                  <div className="text-[10px] text-gray-400 bg-white/5 border border-white/10 rounded-lg p-3">
+                    <span className="font-medium text-white">Note:</span> This indicates the SSN follows valid SSA formatting rules and was allocated for use. It does not verify if it belongs to a specific individual.
                   </div>
                 )}
 
                 {!isValid && hasValidIssuanceInfo && (
                   <div className="space-y-3">
-                    <div
-                      className="text-[12px] rounded-lg border p-3"
-                      style={{
-                        color: 'var(--go-text-secondary)',
-                        background: 'var(--go-accent-soft)',
-                        borderColor: 'var(--go-accent-border)',
-                      }}
-                    >
-                      <span className="font-medium" style={{ color: 'var(--go-accent)' }}>Alternative Use:</span> Since this number was never officially issued by the SSA, it may be suitable for use as a test number, placeholder, or in scenarios requiring fictional SSN data. This number will not conflict with any real issued SSN.
+                    <div className="text-[10px] text-gray-300 bg-gradient-to-r from-blue-500/10 to-gray-500/10 border border-blue-500/20 rounded-lg p-3">
+                      <span className="font-medium text-blue-400">Alternative Use:</span> Since this number was never officially issued by the SSA, it may be suitable for use as a test number, placeholder, or in scenarios requiring fictional SSN data. This number will not conflict with any real issued SSN.
                     </div>
 
                     {isSubscribed ? (
@@ -192,12 +165,11 @@ export default function IssuanceInfo({ state, yearRange, estimatedAge, isValid, 
                         <Button
                           onClick={handleSaveSSN}
                           disabled={isSaving || isSaved}
-                          className="w-full h-8 text-[13px] text-white border-0"
-                          style={{ background: 'var(--go-accent)' }}
+                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 text-xs"
                         >
                           {isSaving ? (
                             <>
-                              <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                              <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
                               Saving...
                             </>
                           ) : isSaved ? (
@@ -210,29 +182,20 @@ export default function IssuanceInfo({ state, yearRange, estimatedAge, isValid, 
                             </>
                           )}
                         </Button>
-                        <p className="text-[12px] text-center" style={{ color: 'var(--go-text-muted)' }}>
+                        <p className="text-[10px] text-gray-500 text-center">
                           Save for future reference and analysis
                         </p>
                       </>
                     ) : (
-                      <div
-                        className="rounded-lg border p-4"
-                        style={{
-                          background: 'var(--go-accent-soft)',
-                          borderColor: 'var(--go-accent-border)',
-                        }}
-                      >
-                        <div className="text-[13px] font-medium mb-2" style={{ color: 'var(--go-text)' }}>
+                      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4">
+                        <div className="text-sm font-medium text-white mb-2">
                           Upgrade to Save Numbers
                         </div>
-                        <div className="text-[12px] mb-4" style={{ color: 'var(--go-text-secondary)' }}>
+                        <div className="text-xs text-gray-300 mb-4">
                           Subscribe to save unlimited records and access full SSN data
                         </div>
                         <Link to={createPageUrl('Pricing')}>
-                          <Button
-                            className="w-full h-8 text-[13px] text-white border-0"
-                            style={{ background: 'var(--go-accent)' }}
-                          >
+                          <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 text-xs">
                             View Pricing
                           </Button>
                         </Link>
@@ -244,12 +207,12 @@ export default function IssuanceInfo({ state, yearRange, estimatedAge, isValid, 
             </div>
 
             {validationIssues && validationIssues.length > 0 && (
-              <div className="mt-4 pt-4 border-t space-y-2" style={{ borderColor: 'var(--go-border)' }}>
-                <div className="text-[11px] font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--go-text-muted)' }}>Validation Issues:</div>
+              <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
+                <div className="text-[10px] font-semibold text-white uppercase tracking-wider mb-2">Validation Issues:</div>
                 {validationIssues.map((issue, index) => (
                   <div key={index} className="flex items-start gap-2">
-                    <div className="w-1 h-1 rounded-full mt-1.5" style={{ background: 'var(--go-warning)' }}></div>
-                    <div className="text-[12px]" style={{ color: 'var(--go-text-secondary)' }}>{issue}</div>
+                    <div className="w-1 h-1 rounded-full bg-amber-400 mt-1.5"></div>
+                    <div className="text-[10px] text-gray-400">{issue}</div>
                   </div>
                 ))}
               </div>
@@ -260,67 +223,58 @@ export default function IssuanceInfo({ state, yearRange, estimatedAge, isValid, 
 
       <div className="grid md:grid-cols-2 gap-4">
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
+          transition={{ delay: 0.1 }}
         >
-          <Card
-            className="rounded-lg border h-full transition-colors"
-            style={{ background: 'var(--go-bg-card)', borderColor: 'var(--go-border)' }}
-          >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-[12px] font-medium" style={{ color: 'var(--go-text-secondary)' }}>
+          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-sm h-full hover:border-blue-500/30 hover:bg-gradient-to-br hover:from-blue-500/5 hover:to-gray-500/5 transition-all">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-[10px] font-medium text-gray-400">
                 Issuance Location
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-[13px] font-medium mb-1" style={{ color: 'var(--go-text)' }}>{state}</div>
-              <div className="text-[11px] uppercase tracking-wider" style={{ color: 'var(--go-text-muted)' }}>Geographic region</div>
+            <CardContent>
+              <div className="text-xs font-semibold text-white mb-1">{state}</div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider">Geographic region</div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
+          transition={{ delay: 0.15 }}
         >
-          <Card
-            className="rounded-lg border h-full transition-colors"
-            style={{ background: 'var(--go-bg-card)', borderColor: 'var(--go-border)' }}
-          >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-[12px] font-medium" style={{ color: 'var(--go-text-secondary)' }}>
+          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-sm h-full hover:border-blue-500/30 hover:bg-gradient-to-br hover:from-blue-500/5 hover:to-gray-500/5 transition-all">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-[10px] font-medium text-gray-400">
                 Issuance Period
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-[13px] font-medium font-mono mb-1" style={{ color: 'var(--go-text)' }}>{yearRange}</div>
-              <div className="text-[11px] uppercase tracking-wider" style={{ color: 'var(--go-text-muted)' }}>Date range</div>
+            <CardContent>
+              <div className="text-xs font-semibold text-white font-mono mb-1">{yearRange}</div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider">Date range</div>
             </CardContent>
           </Card>
         </motion.div>
 
         {estimatedAge && (
           <motion.div
-            initial={{ opacity: 0, y: 4 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.2 }}
           >
-            <Card
-              className="rounded-lg border h-full transition-colors"
-              style={{ background: 'var(--go-bg-card)', borderColor: 'var(--go-border)' }}
-            >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-[12px] font-medium" style={{ color: 'var(--go-text-secondary)' }}>
+            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-sm h-full hover:border-purple-500/30 hover:bg-gradient-to-br hover:from-purple-500/5 hover:to-gray-500/5 transition-all">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-[10px] font-medium text-gray-400">
                   Estimated Age Range
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="text-[13px] font-medium mb-1" style={{ color: 'var(--go-text)' }}>
+              <CardContent>
+                <div className="text-xs font-semibold text-white mb-1">
                   {estimatedAge.min} - {estimatedAge.max} years old
                 </div>
-                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'var(--go-text-muted)' }}>Based on issuance period</div>
+                <div className="text-[10px] text-gray-600 uppercase tracking-wider">Based on issuance period</div>
               </CardContent>
             </Card>
           </motion.div>

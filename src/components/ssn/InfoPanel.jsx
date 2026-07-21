@@ -29,19 +29,21 @@ export default function InfoPanel() {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      {infoItems.map((item) => (
+    <div className="max-w-2xl mx-auto space-y-6">
+      {infoItems.map((item, index) => (
         <div 
           key={item.title} 
-          className="space-y-1.5 pb-4 border-b last:border-0 last:pb-0"
-          style={{ borderColor: 'var(--go-border)' }}
+          className="relative group space-y-2 pb-6 border-b border-white/5 last:border-0 last:pb-0"
         >
-          <h3 className="text-[13px] font-medium" style={{ color: 'var(--go-text)' }}>
-            {item.title}
-          </h3>
-          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--go-text-secondary)' }}>
-            {item.description}
-          </p>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-purple-500/5 group-hover:to-blue-500/5 rounded-lg transition-all duration-500 -m-3 p-3" />
+          <div className="relative">
+            <h3 className="text-xs font-medium text-white mb-1">
+              {item.title}
+            </h3>
+            <p className="text-[10px] text-gray-500 leading-relaxed">
+              {item.description}
+            </p>
+          </div>
         </div>
       ))}
     </div>

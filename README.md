@@ -1,12 +1,21 @@
-# GrayOcean
+# Gray Ocean
 
-Local Vite + React SaaS workspace (dark + light themes).
+Identity-intelligence workspace (SSN, address, batch, skiptrace) on **Supabase** + Vite/React.
 
-```bash
-npm install
-npm run dev
-```
+## Setup
 
-Opens straight into the app at `/` (SSN Lookup). Theme toggle is in the top bar.
+1. `npm install`
+2. Copy `.env.example` → `.env.local` and add your Supabase URL + anon key
+3. Apply SQL migrations under `supabase/migrations/` (see `SUPABASE_SETUP.md`)
+4. `npm run dev`
 
-Login / signup are parked for later — auth routes redirect into the workspace.
+## Scripts
+
+- `npm run dev` — local app
+- `npm run build` — production build to `dist/`
+- `npm run lint` — ESLint
+
+## Docs
+
+- `SUPABASE_SETUP.md` — Supabase, credits, Hostinger, admin
+- `supabase/MAKE_FIRST_ADMIN.sql` — promote first admin

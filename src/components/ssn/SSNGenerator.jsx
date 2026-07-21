@@ -132,12 +132,9 @@ export default function SSNGenerator({ onGenerate }) {
 
   return (
     <>
-      <Card
-        className="rounded-lg border"
-        style={{ background: 'var(--go-bg-card)', borderColor: 'var(--go-border)' }}
-      >
-        <CardHeader className="border-b pb-3" style={{ borderColor: 'var(--go-border)' }}>
-          <CardTitle className="text-[13px] font-medium flex items-center gap-2" style={{ color: 'var(--go-text)' }}>
+      <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-sm">
+        <CardHeader className="border-b border-white/10 pb-4">
+          <CardTitle className="text-xs font-semibold text-white flex items-center gap-2">
             SSN Generator
             <span className="ml-auto">
               <MinimalBadge variant="cyan" size="xs">
@@ -146,10 +143,10 @@ export default function SSNGenerator({ onGenerate }) {
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-6 space-y-6">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="text-[12px] font-medium mb-1.5 block" style={{ color: 'var(--go-text-secondary)' }}>
+              <label className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-2 block">
                 Age
               </label>
               <Input
@@ -157,43 +154,23 @@ export default function SSNGenerator({ onGenerate }) {
                 placeholder="25"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                className="h-8 text-[13px] rounded-md border focus-visible:ring-0"
-                style={{
-                  background: 'var(--go-input-bg)',
-                  borderColor: 'var(--go-input-border)',
-                  color: 'var(--go-input-text)',
-                }}
+                className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 text-xs"
                 min="0"
                 max="120"
               />
             </div>
             
             <div>
-              <label className="text-[12px] font-medium mb-1.5 block" style={{ color: 'var(--go-text-secondary)' }}>
+              <label className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-2 block">
                 State of Issuance
               </label>
               <Select value={selectedState} onValueChange={setSelectedState}>
-                <SelectTrigger
-                  className="h-8 text-[13px] rounded-md border"
-                  style={{
-                    background: 'var(--go-input-bg)',
-                    borderColor: 'var(--go-input-border)',
-                    color: 'var(--go-input-text)',
-                  }}
-                >
+                <SelectTrigger className="bg-white/5 border-white/10 text-white text-xs">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
-                <SelectContent
-                  className="border"
-                  style={{ background: 'var(--go-bg-elevated)', borderColor: 'var(--go-border)' }}
-                >
+                <SelectContent className="bg-[hsl(0,0%,12%)] border-white/10">
                   {states.map(state => (
-                    <SelectItem
-                      key={state}
-                      value={state}
-                      className="text-[13px]"
-                      style={{ color: 'var(--go-text)' }}
-                    >
+                    <SelectItem key={state} value={state} className="text-white hover:bg-white/10 text-xs">
                       {state}
                     </SelectItem>
                   ))}
@@ -206,12 +183,11 @@ export default function SSNGenerator({ onGenerate }) {
             <Button
               onClick={handleGenerate}
               disabled={!age || !selectedState || isGenerating}
-              className="flex-1 h-8 text-[13px] text-white border-0 disabled:opacity-50"
-              style={{ background: 'var(--go-accent)' }}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-gray-600 hover:from-blue-600 hover:to-gray-700 text-white border-0 disabled:opacity-50 text-xs"
             >
               {isGenerating ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
                   Generating...
                 </>
               ) : (
@@ -227,27 +203,23 @@ export default function SSNGenerator({ onGenerate }) {
           <AnimatePresence mode="wait">
             {generatedSSNs.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 4 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="space-y-2"
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-3"
               >
-                <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--go-text-muted)' }}>
+                <div className="text-[10px] font-semibold text-white uppercase tracking-wider">
                   Generated Numbers
                 </div>
                 {generatedSSNs.map((ssn, index) => (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, y: 2 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex items-center gap-3 p-3 rounded-lg border transition-colors"
-                    style={{
-                      background: 'var(--go-bg-panel)',
-                      borderColor: 'var(--go-border)',
-                    }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:border-blue-500/30 hover:bg-gradient-to-r hover:from-blue-500/5 hover:to-gray-500/5 transition-all group"
                   >
-                    <div className="flex-1 font-mono text-[14px]" style={{ color: 'var(--go-text)' }}>
+                    <div className="flex-1 font-mono text-base text-white">
                       {ssn}
                     </div>
                         <>
@@ -255,20 +227,14 @@ export default function SSNGenerator({ onGenerate }) {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleCopy(ssn, index)}
-                        className="h-8 text-[12px]"
-                        style={{ color: 'var(--go-text-secondary)' }}
+                        className="text-gray-400 hover:text-white text-xs"
                       >
                         {copiedIndex === index ? 'Copied' : 'Copy'}
                       </Button>
                       <Button
                         size="sm"
                         onClick={() => handleAnalyze(ssn)}
-                        className="h-8 text-[12px] border"
-                        style={{
-                          background: 'transparent',
-                          color: 'var(--go-accent)',
-                          borderColor: 'var(--go-accent-border)',
-                        }}
+                        className="bg-gradient-to-r from-blue-500/20 to-gray-500/20 hover:from-blue-500/30 hover:to-gray-500/30 text-white border border-white/10 text-xs"
                       >
                         Analyze
                       </Button>
@@ -280,15 +246,8 @@ export default function SSNGenerator({ onGenerate }) {
             )}
           </AnimatePresence>
 
-          <div
-            className="text-[12px] rounded-lg border p-3"
-            style={{
-              color: 'var(--go-text-muted)',
-              background: 'var(--go-bg-panel)',
-              borderColor: 'var(--go-border)',
-            }}
-          >
-            <span className="font-medium" style={{ color: 'var(--go-text-secondary)' }}>Note:</span> Generated numbers follow historical SSA allocation patterns based on age and state. Numbers are for educational and testing purposes only.
+          <div className="text-[10px] text-gray-500 bg-white/5 border border-white/10 rounded-lg p-3">
+            <span className="font-medium text-gray-400">Note:</span> Generated numbers follow historical SSA allocation patterns based on age and state. Numbers are for educational and testing purposes only.
           </div>
         </CardContent>
       </Card>

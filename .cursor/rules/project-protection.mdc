@@ -1,0 +1,43 @@
+---
+description: Protect backend, data, auth, and feature behavior — UI-only changes allowed
+alwaysApply: true
+---
+
+# Project Protection (UI-only work)
+
+This is a production app. Current work is **UI/UX improvement only**. Prefer not changing anything until the architecture is understood; when editing, protect behavior below.
+
+## Never change
+
+- Backend logic, database queries, entities, schemas, API calls
+- Authentication, permissions, calculations, validations, data-processing
+- Existing feature behavior or workflows
+- Field names, routes, functions, props, env vars, or integrations (no remove/rename)
+- Real data — do not replace with mock/fake data
+- Working code unless required for UI presentation
+- Loading, error, success, and empty-state **logic** (visual restyle is OK)
+
+## Do not
+
+- Install unnecessary dependencies
+- Rewrite large parts of the app — small, incremental edits only
+- Modify code when uncertain whether it is business logic — leave it alone
+
+## Allowed
+
+- Layout, typography, colors, spacing, responsive behavior
+- Accessibility, visual hierarchy, styling, animations
+- Reusable **presentational** components
+- User-facing microcopy **without changing meaning**
+- Reorganizing UI components **if** inputs, outputs, and functionality stay the same
+
+## Before editing a file
+
+1. Identify logic that must be preserved (handlers, queries, auth, validation, state machines, side effects).
+2. Touch only presentation: classNames, structure wrappers, tokens, a11y attributes, copy phrasing.
+3. Keep props, callbacks, data shapes, and control flow intact.
+
+## After every change
+
+- Run the build and fix **only** issues caused by the UI work.
+- Do not “clean up” unrelated logic, APIs, or entities while fixing build errors.

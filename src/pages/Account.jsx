@@ -1,203 +1,217 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { User } from "@/entities/User";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MinimalBadge } from "@/components/ui/minimal-badge";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { MinimalBadge } from "@/components/ui/minimal-badge";
+import {
+  WorkspacePage,
+  WorkspacePanel,
+  PrimaryButton,
+  GhostButton,
+} from "@/components/dashboard";
+import {
+  listMyCreditOrders,
+  listMyLedger,
+  formatCents,
+  ORDER_STATUS_LABELS,
+} from "@/lib/creditsApi";
 
 export default function AccountPage() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [ledger, setLedger] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const currentUser = await User.me();
       setUser(currentUser);
-      setError(null);
+      const [o, l] = await Promise.all([
+        listMyCreditOrders(10),
+        listMyLedger(15),
+      ]);
+      setOrders(o);
+      setLedger(l);
     } catch (err) {
-      console.error('Error loading user:', err);
-      // Fix #1: If not logged in, redirect to login
-      if (err.message?.includes('Unauthorized') || err.message?.includes('not authenticated') || err.status === 401) {
+      console.error("Error loading user:", err);
+      if (
+        err.message?.includes("Unauthorized") ||
+        err.message?.includes("not authenticated") ||
+        err.status === 401
+      ) {
         await User.loginWithRedirect(window.location.href);
-        return; // Stop execution after redirect
+        return;
       }
-      setError('Failed to load account information. Please try again.');
+      setError("Failed to load account information. Please try again.");
       setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'active':
-        return <MinimalBadge variant="info" size="sm">Active</MinimalBadge>;
-      case 'trial':
-        return <MinimalBadge variant="neutral" size="sm">Trial</MinimalBadge>;
-      case 'expired':
-        return <MinimalBadge variant="warning" size="sm">Expired</MinimalBadge>;
-      case 'cancelled':
-        return <MinimalBadge variant="neutral" size="sm">Cancelled</MinimalBadge>;
-      default:
-        return <MinimalBadge variant="neutral" size="sm">Unknown</MinimalBadge>;
-    }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--go-bg)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <div className="flex min-h-full items-center justify-center bg-go-bg">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-go-border border-t-go-text" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[var(--go-bg)] flex items-center justify-center px-4">
-        <Card className="go-panel shadow-none  max-w-md w-full">
-          <CardContent className="p-6 text-center">
-            <div className="text-sm text-[color:var(--go-error)] mb-4">{error}</div>
-            <Button onClick={loadUser} className="h-8 go-pill-btn">
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-full items-center justify-center bg-go-bg px-4">
+        <WorkspacePanel className="w-full max-w-md">
+          <div className="text-center">
+            <div className="mb-4 text-sm text-go-danger">{error}</div>
+            <PrimaryButton onClick={loadUser}>Retry</PrimaryButton>
+          </div>
+        </WorkspacePanel>
       </div>
     );
   }
 
-  // Fix #2: Prevent negative days by using Math.max(0, ...)
-  const daysUntilExpiration = user?.subscription_expires 
-    ? Math.max(0, Math.ceil((new Date(user.subscription_expires) - new Date()) / (1000 * 60 * 60 * 24)))
-    : 0;
+  const balance =
+    typeof user?.credit_balance_cents === "number" ? user.credit_balance_cents : 0;
 
   return (
-    <div className="min-h-screen bg-[var(--go-bg)] py-5 md:py-6">
-      <div className="max-w-4xl mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-5"
-        >
-          <h1 className="go-page-title">
-            Account Settings
-          </h1>
-          <p className="go-page-subtitle mt-1.5">
-            Subscription and account details
-          </p>
-        </motion.div>
+    <WorkspacePage
+      title="Account"
+      description="Prepaid usage balance and account details. Credits are not a crypto wallet."
+      maxWidth="max-w-4xl"
+    >
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="space-y-6 md:col-span-2">
+          <WorkspacePanel title="Credit balance">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <div className="text-[12px] text-go-text-muted">Available balance</div>
+                <div className="mt-1 text-[32px] font-semibold tracking-tight text-go-text">
+                  {formatCents(balance)}
+                </div>
+              </div>
+              <PrimaryButton
+                type="button"
+                onClick={() => navigate(createPageUrl("Pricing"))}
+              >
+                Add credits
+              </PrimaryButton>
+            </div>
+            <p className="text-[13px] leading-relaxed text-go-text-secondary">
+              Lookups deduct from this prepaid usage balance. Credits cannot be withdrawn,
+              transferred, or converted back to USDC. Network for purchases:{" "}
+              <span className="font-medium text-go-text">USDC on Base only</span>.
+            </p>
+          </WorkspacePanel>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-6">
-            {/* Account Status */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Card className="go-panel shadow-none ">
-                <CardHeader className="border-b border-[color:var(--go-border)]">
-                  <CardTitle className="text-[12px] font-medium text-[color:var(--go-text-secondary)]">
-                    Account Status
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-6">
+          <WorkspacePanel title="Account details">
+            <div className="space-y-4">
+              <div>
+                <div className="mb-1 text-[12px] text-go-text-muted">Name</div>
+                <div className="text-sm text-go-text">{user?.full_name || "Not provided"}</div>
+              </div>
+              <div>
+                <div className="mb-1 text-[12px] text-go-text-muted">Email</div>
+                <div className="text-sm break-all text-go-text">{user?.email}</div>
+              </div>
+              <div>
+                <div className="mb-1 text-[12px] text-go-text-muted">Role</div>
+                <div className="text-sm capitalize text-go-text">{user?.role || "user"}</div>
+              </div>
+            </div>
+          </WorkspacePanel>
+
+          <WorkspacePanel title="Recent credit orders">
+            {orders.length === 0 ? (
+              <p className="text-[13px] text-go-text-muted">No orders yet.</p>
+            ) : (
+              <div className="divide-y divide-go-border">
+                {orders.map((o) => (
+                  <div
+                    key={o.id}
+                    className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0"
+                  >
                     <div>
-                      <div className="text-sm text-[color:var(--go-text-secondary)] mb-2">Access Level</div>
-                      <div className="text-xl font-bold text-[color:var(--go-text)]">
-                        Full Access
+                      <div className="font-mono text-[12px] text-go-text-muted">
+                        {o.id.slice(0, 8)}…
+                      </div>
+                      <div className="text-[13px] text-go-text">
+                        {formatCents(o.usd_credit_amount_cents)} · {Number(o.usdc_amount)} USDC
                       </div>
                     </div>
-                    <MinimalBadge variant="info" size="sm">Free</MinimalBadge>
+                    <MinimalBadge variant="neutral" size="sm">
+                      {ORDER_STATUS_LABELS[o.status] || o.status}
+                    </MinimalBadge>
                   </div>
+                ))}
+              </div>
+            )}
+          </WorkspacePanel>
 
-                  <div className="bg-[var(--go-accent-soft)] border border-[color:var(--go-accent-border)] rounded-lg p-4">
-                    <div className="text-[13px] text-[color:var(--go-accent-text)] font-medium mb-2">
-                      Free for All Users
-                    </div>
-                    <div className="text-[13px] text-[color:var(--go-text-body)]">
-                      Enjoy unlimited access to all features at no cost
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Account Details */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="go-panel shadow-none ">
-                <CardHeader className="border-b border-[color:var(--go-border)]">
-                  <CardTitle className="text-[12px] font-medium text-[color:var(--go-text-secondary)]">
-                    Account Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  <div>
-                    <div className="text-xs text-[color:var(--go-text-muted)] mb-1">Name</div>
-                    <div className="text-sm text-[color:var(--go-text)]">{user?.full_name || 'Not provided'}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-[color:var(--go-text-muted)] mb-1">Email</div>
-                    <div className="text-sm text-[color:var(--go-text)]">{user?.email}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-[color:var(--go-text-muted)] mb-1">Role</div>
-                    <div className="text-sm text-[color:var(--go-text)] capitalize">{user?.role || 'user'}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="go-panel shadow-none ">
-                <CardHeader className="border-b border-[color:var(--go-border)]">
-                  <CardTitle className="text-[12px] font-medium text-[color:var(--go-text-secondary)]">
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 space-y-2">
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start text-xs text-[color:var(--go-text-secondary)] hover:text-[color:var(--go-text)]"
-                    onClick={() => User.logout()}
+          <WorkspacePanel title="Ledger">
+            {ledger.length === 0 ? (
+              <p className="text-[13px] text-go-text-muted">No ledger entries yet.</p>
+            ) : (
+              <div className="divide-y divide-go-border">
+                {ledger.map((e) => (
+                  <div
+                    key={e.id}
+                    className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0"
                   >
-                    Sign Out
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
+                    <div>
+                      <div className="text-[13px] text-go-text">{e.entry_type}</div>
+                      <div className="text-[12px] text-go-text-muted">
+                        {e.description || new Date(e.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div
+                        className={`font-mono text-[13px] ${
+                          e.amount_cents < 0 ? "text-go-text-secondary" : "text-go-text"
+                        }`}
+                      >
+                        {e.amount_cents > 0 ? "+" : ""}
+                        {formatCents(e.amount_cents)}
+                      </div>
+                      <div className="text-[11px] text-go-text-muted">
+                        bal {formatCents(e.balance_after_cents)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </WorkspacePanel>
+        </div>
+
+        <div className="space-y-6">
+          <WorkspacePanel title="Quick actions">
+            <div className="space-y-2">
+              <GhostButton
+                className="w-full justify-start"
+                type="button"
+                onClick={() => navigate(createPageUrl("Pricing"))}
+              >
+                Pricing & packages
+              </GhostButton>
+              <GhostButton
+                className="w-full justify-start"
+                type="button"
+                onClick={() => User.logout()}
+              >
+                Sign out
+              </GhostButton>
+            </div>
+          </WorkspacePanel>
         </div>
       </div>
-    </div>
+    </WorkspacePage>
   );
 }

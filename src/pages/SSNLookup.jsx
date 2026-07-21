@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { SSNLookup } from "@/entities/SSNLookup";
-import { User } from "@/entities/User";
-import { db } from "@/api/localClient";
+import React, { useState } from "react";
+import { db } from "@/api/db";
 import { AnimatePresence, motion } from "framer-motion";
 
-import SSNInput from "../components/ssn/SSNInput";
 import SSNBreakdown from "../components/ssn/SSNBreakdown";
 import IssuanceInfo from "../components/ssn/IssuanceInfo";
-import InfoPanel from "../components/ssn/InfoPanel";
+import AIInsights from "../components/ssn/AIInsights";
 import GeoMap, { stateCoordinates } from "../components/ssn/GeoMap";
 import RiskAnalysis from "../components/ssn/RiskAnalysis";
 import SSNGenerator from "../components/ssn/SSNGenerator";
@@ -15,6 +12,13 @@ import DeceasedCheck from "../components/ssn/DeceasedCheck";
 import VerdictBanner from "../components/ssn/VerdictBanner";
 import LoadingStatus from "../components/ssn/LoadingStatus";
 import { MinimalBadge } from "../components/ui/minimal-badge";
+import {
+  SearchForm,
+  FeatureCard,
+  ExampleChips,
+  HowItWorks,
+} from "@/components/dashboard";
+import { Map, Flag, Shield } from "lucide-react";
 
 export default function SSNLookupPage() {
   const [ssn, setSSN] = useState('');
@@ -25,8 +29,8 @@ export default function SSNLookupPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchHistory, setSearchHistory] = useState([]);
   const [riskScore, setRiskScore] = useState(null);
-  const [showInfo, setShowInfo] = useState(false);
-  const [showHomeGenerator, setShowHomeGenerator] = useState(false);
+  const [aiInsights, setAiInsights] = useState(null);
+  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [deceasedData, setDeceasedData] = useState(null);
   const [isLoadingDeceased, setIsLoadingDeceased] = useState(false);
   const isSubscribed = true; // Free for all users
@@ -456,7 +460,6 @@ export default function SSNLookupPage() {
 
     setIsLoadingDeceased(true);
     try {
-      const { base44 } = await import("@/api/base44Client");
       const prompt = `You are a forensic researcher with access to public Social Security Death Index (SSDI) records.
 
 A user is checking whether a Social Security Number may belong to a deceased individual.
@@ -500,11 +503,90 @@ Return a structured assessment. Be factual and conservative — only flag if the
     }
   };
 
+  const generateAIInsights = async (resultData, risk) => {
+    setIsLoadingInsights(true);
+    
+    // Determine masked components for the AI prompt if not subscribed
+    // Area number is generally less sensitive and often linked to state.
+    // Group and Serial numbers are highly sensitive.
+    const groupForAI = !isSubscribed ? 'XX' : resultData.group_number;
+    const serialForAI = !isSubscribed ? 'XXXX' : resultData.serial_number;
+
+    try {
+      const prompt = `You are an expert forensic analyst specializing in Social Security Number verification and historical records analysis.
+
+Analyze this SSN information and provide detailed, intelligent insights:
+
+SSN Components:
+- Area Number: ${resultData.area_number}
+- Group Number: ${groupForAI}
+- Serial Number: ${serialForAI}
+- Issuance State/Region: ${resultData.state}
+- Issuance Period: ${resultData.year_range}
+- Format Validity: ${resultData.is_valid ? 'Valid' : 'Invalid'}
+- Risk Level: ${risk.risk_level} (Score: ${risk.score}/100)
+
+${resultData.validationIssues && resultData.validationIssues.length > 0 ? `
+Validation Issues Detected:
+${resultData.validationIssues.map(issue => `- ${issue}`).join('\n')}
+` : ''}
+
+Risk Flags:
+${risk.flags.map(flag => `- [${flag.level.toUpperCase()}] ${flag.message}`).join('\n')}
+
+Provide a comprehensive forensic analysis with:
+1. A brief executive summary (2-3 sentences)
+2. Historical context about this SSN's issuance period and location
+3. Pattern analysis - any notable patterns or anomalies in the number sequence
+4. Security considerations - what this means from a security/fraud perspective
+5. 2-3 key recommendations or observations
+
+Be technical but clear. Focus on facts and historical data. Make it feel like advanced forensic analysis.`;
+
+      const response = await db.integrations.Core.InvokeLLM({
+        prompt: prompt,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            summary: { type: "string" },
+            historical_context: { type: "string" },
+            pattern_analysis: { type: "string" },
+            security_notes: { type: "string" },
+            recommendations: { 
+              type: "array",
+              items: { type: "string" }
+            }
+          }
+        }
+      });
+      
+      setAiInsights(response);
+    } catch (error) {
+      console.error('Error generating insights:', error);
+      // Set a fallback message instead of showing error
+      setAiInsights({
+        summary: "AI analysis temporarily unavailable. The SSN analysis results above provide comprehensive information about this number.",
+        historical_context: `This SSN was issued in ${resultData.state} during the period ${resultData.year_range}.`,
+        pattern_analysis: "Manual pattern analysis available in the Risk Analysis section above.",
+        security_notes: `This SSN has a risk score of ${risk.score}/100, classified as ${risk.risk_level} risk.`,
+        recommendations: [
+          "Review the Risk Analysis section for detailed security assessment",
+          "Check the Validation Issues for specific concerns",
+          "Consider the issuance period and location context"
+        ]
+      });
+    } finally {
+      setIsLoadingInsights(false);
+    }
+  };
+
   const validateSSN = async (ssnValue) => {
     const startTime = performance.now();
     setIsProcessing(true);
     setRiskScore(null);
     setError('');
+    setAiInsights(null);
     setDeceasedData(null);
     setShowHomeGenerator(false);
 
@@ -552,6 +634,7 @@ Return a structured assessment. Be factual and conservative — only flag if the
 
     setIsProcessing(false);
 
+    generateAIInsights(resultData, risk);
     checkDeathRecords(resultData);
 
     const coordinates = stateCoordinates[state];
@@ -584,11 +667,10 @@ Return a structured assessment. Be factual and conservative — only flag if the
       setProcessingTime(null);
       setIsProcessing(false);
       setRiskScore(null);
+      setAiInsights(null);
+      setIsLoadingInsights(false);
       setDeceasedData(null);
       setIsLoadingDeceased(false);
-      if (value.length === 0) {
-        setShowHomeGenerator(false);
-      }
     }
   };
 
@@ -655,99 +737,60 @@ Return a structured assessment. Be factual and conservative — only flag if the
 
   const displaySSN = ssn;
 
-  return (
-    <div className="min-h-full py-10 md:py-14">
-      <div className="w-full max-w-[640px] mx-auto px-6 md:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-          className="mb-10"
-        >
-          <p className="go-kicker mb-3">Identity intelligence</p>
-          <h1 className="go-page-title mb-2">SSN Lookup</h1>
-          <p className="go-page-subtitle">
-            Check format, issue-state signals, and risk markers in one lookup.
-          </p>
-        </motion.div>
+  const handleLookup = (formatted) => {
+    const next = formatted || ssn;
+    setSSN(next);
+    if (String(next).replace(/\D/g, "").length === 9) {
+      validateSSN(next);
+    }
+  };
 
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: 0.04, ease: [0.4, 0, 0.2, 1] }}
-          className="go-panel p-5 md:p-6 mb-8"
-        >
-          <label className="go-label">Social Security Number</label>
-          <SSNInput
+  return (
+    <div className="min-h-full bg-go-bg">
+      <div className="mx-auto w-full max-w-[900px] px-3 pb-16 pt-8 sm:px-6 sm:pt-10 md:px-8 md:pt-14">
+        <div className="mb-8 sm:mb-10">
+          <h2 className="text-[24px] font-semibold tracking-tight text-go-text sm:text-[28px] md:text-[32px]">
+            SSN Lookup
+          </h2>
+          <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-go-text-secondary">
+            Fast, accurate identity intelligence &amp; SSN verification
+          </p>
+        </div>
+
+        <div className="mb-10">
+          <SearchForm
             value={displaySSN}
             onChange={handleSSNChange}
-            isValid={isValid}
-            error={error}
+            onLookup={handleLookup}
             isProcessing={isProcessing}
-            isSubscribed={isSubscribed}
+            error={error}
           />
-          
+
           {processingTime && !isProcessing && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.15 }}
-              className="mt-3 flex items-center justify-center gap-2"
-            >
+            <div className="mt-3">
               <MinimalBadge variant="neutral" size="sm">
                 Verified in {processingTime}ms
               </MinimalBadge>
-            </motion.div>
+            </div>
           )}
-
-          {!results && ssn.length === 0 && !error && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.15, delay: 0.1 }}
-              className="mt-3 text-center"
-            >
-              <button
-                onClick={() => setShowHomeGenerator(!showHomeGenerator)}
-                className="text-[12px] transition-opacity hover:opacity-70"
-                style={{ color: "var(--go-text-muted)" }}
-              >
-                {showHomeGenerator ? "Hide" : "Auto generate numbers"}
-              </button>
-            </motion.div>
-          )}
-        </motion.div>
-
-        <AnimatePresence>
-          {!results && showHomeGenerator && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="mb-8"
-            >
-              <SSNGenerator onGenerate={handleGeneratedSSN} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </div>
 
         <AnimatePresence mode="wait">
           {results && !isProcessing && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-4"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+              className="mb-10 space-y-4"
             >
-              {/* Verdict Banner — TL;DR at the top */}
               <VerdictBanner results={results} riskScore={riskScore} />
 
-              {/* Loading status line */}
               <LoadingStatus
                 isLoadingDeceased={isLoadingDeceased}
+                isLoadingInsights={isLoadingInsights}
                 hasDeceased={!!deceasedData}
+                hasInsights={!!aiInsights}
               />
 
               <SSNBreakdown
@@ -758,18 +801,28 @@ Return a structured assessment. Be factual and conservative — only flag if the
                 onRegenerate={handleRegenerate}
               />
 
-              {riskScore && (
-                <RiskAnalysis riskData={riskScore} />
-              )}
+              {riskScore && <RiskAnalysis riskData={riskScore} />}
 
               {(deceasedData || isLoadingDeceased) && (
                 <DeceasedCheck data={deceasedData} isLoading={isLoadingDeceased} />
               )}
 
+              {(aiInsights || isLoadingInsights) && (
+                <AIInsights
+                  insights={aiInsights}
+                  isLoading={isLoadingInsights}
+                  isSubscribed={isSubscribed}
+                  ssnData={results}
+                />
+              )}
+
               <IssuanceInfo
                 state={results.state}
                 yearRange={results.year_range}
-                estimatedAge={estimateAgeFromYearRange(results.year_range, results.group_number)}
+                estimatedAge={estimateAgeFromYearRange(
+                  results.year_range,
+                  results.group_number
+                )}
                 isValid={results.is_valid}
                 validationIssues={results.validationIssues}
                 fullData={{
@@ -777,7 +830,7 @@ Return a structured assessment. Be factual and conservative — only flag if the
                   area_number: results.area_number,
                   group_number: results.group_number,
                   serial_number: results.serial_number,
-                  risk_score: riskScore?.score
+                  risk_score: riskScore?.score,
                 }}
               />
 
@@ -790,75 +843,35 @@ Return a structured assessment. Be factual and conservative — only flag if the
           )}
         </AnimatePresence>
 
-        {!results && !showHomeGenerator && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2, delay: 0.1 }}
-            className="mt-10"
-          >
-            {/* Feature highlights */}
-            <div className="grid grid-cols-3 gap-3 mb-8">
-              {[
-                { label: 'State & Era', desc: 'Maps area number to issuing state and time period.' },
-                { label: 'Risk Scoring', desc: 'Flags invalid, test, or suspicious patterns.' },
-                { label: 'Death Check', desc: 'Cross-references SSDI for deceased-status matches.' },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.15, delay: 0.08 + i * 0.04 }}
-                  className="p-3 rounded-lg border border-[color:var(--go-border)] bg-[var(--go-bg-card)]"
-                >
-                  <div className="text-[12px] font-medium text-[color:var(--go-text)] mb-1">{item.label}</div>
-                  <div className="text-[12px] text-[color:var(--go-text-muted)] leading-relaxed">{item.desc}</div>
-                </motion.div>
-              ))}
+        {!results && (
+          <div className="space-y-10">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <FeatureCard
+                icon={Map}
+                title="State & Era"
+                description="Identify the issuing state and time period."
+              />
+              <FeatureCard
+                icon={Flag}
+                title="Risk Scoring"
+                description="Detect invalid, test, or suspicious patterns."
+              />
+              <FeatureCard
+                icon={Shield}
+                title="Death Check"
+                description="Cross-reference SSDI for deceased identity signals."
+              />
             </div>
 
-            {/* Try an example */}
-            <div className="text-center mb-6">
-              <p className="go-kicker mb-3">Try an example</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {['078-05-1120', '545-23-4567', '212-14-8832'].map((ex) => (
-                  <button
-                    key={ex}
-                    onClick={() => { setSSN(ex); validateSSN(ex); }}
-                    className="h-7 px-2.5 rounded-md border font-mono text-[12px] transition-colors hover:opacity-90"
-                    style={{
-                      borderColor: "var(--go-border)",
-                      background: "var(--go-bg-card)",
-                      color: "var(--go-text-secondary)",
-                    }}
-                  >
-                    {ex}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <ExampleChips
+              onSelect={(ex) => {
+                setSSN(ex);
+                validateSSN(ex);
+              }}
+            />
 
-            <button
-              onClick={() => setShowInfo(!showInfo)}
-              className="w-full flex items-center justify-center gap-2 text-xs font-medium text-[color:var(--go-text-muted)] hover:text-[color:var(--go-text-body)] transition-colors mb-4"
-            >
-              <span>How It Works</span>
-              <span className={`transition-transform duration-300 ${showInfo ? 'rotate-180' : ''}`}>▼</span>
-            </button>
-            
-            <AnimatePresence>
-              {showInfo && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <InfoPanel />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+            <HowItWorks />
+          </div>
         )}
       </div>
     </div>

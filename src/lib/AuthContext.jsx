@@ -1,103 +1,157 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react'
-import { db } from '@/api/localClient'
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { User } from "@/entities/User";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true)
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true)
-  const [authError, setAuthError] = useState(null)
-  const [appPublicSettings, setAppPublicSettings] = useState(null)
-
-  const checkUserAuth = useCallback(async () => {
-    try {
-      setIsLoadingAuth(true)
-      const currentUser = await db.auth.me()
-      setUser(currentUser)
-      setIsAuthenticated(true)
-      setAuthError(null)
-    } catch {
-      setUser(null)
-      setIsAuthenticated(false)
-    } finally {
-      setIsLoadingAuth(false)
-    }
-  }, [])
-
-  const checkAppState = useCallback(async () => {
-    try {
-      setIsLoadingPublicSettings(true)
-      setAuthError(null)
-      setAppPublicSettings({ id: 'local', public_settings: {} })
-      setIsLoadingPublicSettings(false)
-      await checkUserAuth()
-    } catch (error) {
-      console.error('Unexpected error:', error)
-      setAuthError({
-        type: 'unknown',
-        message: error.message || 'An unexpected error occurred',
-      })
-      setIsLoadingPublicSettings(false)
-      setIsLoadingAuth(false)
-    }
-  }, [checkUserAuth])
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
+  const [authError, setAuthError] = useState(null);
+  const [appPublicSettings, setAppPublicSettings] = useState({
+    id: "grayocean",
+    public_settings: {},
+  });
 
   useEffect(() => {
-    checkAppState()
-  }, [checkAppState])
+    let mounted = true;
 
-  const login = async ({ email, password, full_name, company } = {}) => {
-    const next = await db.auth.login({ email, password, full_name, company })
-    setUser(next)
-    setIsAuthenticated(true)
-    setAuthError(null)
-    return next
-  }
+    const init = async () => {
+      setIsLoadingPublicSettings(true);
+      setAuthError(null);
 
-  const logout = (shouldRedirect = true) => {
-    setUser(null)
-    setIsAuthenticated(false)
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!mounted) return;
+
+        if (sessionData.session) {
+          try {
+            const profile = await User.me();
+            if (!mounted) return;
+            setUser(profile);
+            setIsAuthenticated(true);
+          } catch (err) {
+            console.error("Profile load failed:", err);
+            setUser(null);
+            setIsAuthenticated(false);
+            setAuthError({
+              type: "auth_required",
+              message: "Authentication required",
+            });
+          }
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error("Auth init failed:", error);
+        if (mounted) {
+          setAuthError({
+            type: "unknown",
+            message: error.message || "Failed to initialize auth",
+          });
+        }
+      } finally {
+        if (mounted) {
+          setIsLoadingAuth(false);
+          setIsLoadingPublicSettings(false);
+        }
+      }
+    };
+
+    init();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      if (event === "SIGNED_OUT" || !session) {
+        setUser(null);
+        setIsAuthenticated(false);
+        return;
+      }
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+        try {
+          const profile = await User.me();
+          if (!mounted) return;
+          setUser(profile);
+          setIsAuthenticated(true);
+          setAuthError(null);
+        } catch {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      }
+    });
+
+    return () => {
+      mounted = false;
+      sub?.subscription?.unsubscribe();
+    };
+  }, []);
+
+  const logout = async (shouldRedirect = true) => {
+    setUser(null);
+    setIsAuthenticated(false);
+    await supabase.auth.signOut();
     if (shouldRedirect) {
-      db.auth.logout('/')
-    } else {
-      db.auth.logout()
+      window.location.assign("/Login");
     }
-  }
+  };
 
   const navigateToLogin = () => {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login'
+    const next = encodeURIComponent(window.location.href);
+    window.location.assign(`/Login?redirect=${next}`);
+  };
+
+  const checkAppState = async () => {
+    setIsLoadingAuth(true);
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        const profile = await User.me();
+        setUser(profile);
+        setIsAuthenticated(true);
+        setAuthError(null);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      setAuthError({
+        type: "unknown",
+        message: error.message || "Failed to refresh auth",
+      });
+    } finally {
+      setIsLoadingAuth(false);
+      setIsLoadingPublicSettings(false);
     }
-  }
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated,
+        isAdmin: user?.role === "admin",
         isLoadingAuth,
         isLoadingPublicSettings,
         authError,
         appPublicSettings,
-        login,
         logout,
         navigateToLogin,
         checkAppState,
-        checkUserAuth,
-        authChecked: !isLoadingAuth,
       }}
     >
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
-}
+  return context;
+};

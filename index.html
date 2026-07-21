@@ -1,25 +1,17 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GrayOcean</title>
-    <script>
-      (function () {
-        try {
-          var stored = localStorage.getItem("grayocean-theme");
-          var theme = stored || "dark";
-          if (theme === "system") {
-            theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light";
-          }
-          document.documentElement.classList.toggle("dark", theme === "dark");
-          document.documentElement.style.colorScheme = theme;
-        } catch (e) {}
-      })();
-    </script>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>Gray Ocean</title>
   </head>
   <body>
     <div id="root"></div>

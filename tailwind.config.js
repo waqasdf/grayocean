@@ -1,93 +1,194 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    darkMode: ["class"],
-    content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+  darkMode: ["class"],
+  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
-  	extend: {
-  		fontFamily: {
-  			sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-  			mono: ['SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', 'monospace'],
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		},
-  		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			},
-  			sidebar: {
-  				DEFAULT: 'hsl(var(--sidebar-background))',
-  				foreground: 'hsl(var(--sidebar-foreground))',
-  				primary: 'hsl(var(--sidebar-primary))',
-  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-  				accent: 'hsl(var(--sidebar-accent))',
-  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-  				border: 'hsl(var(--sidebar-border))',
-  				ring: 'hsl(var(--sidebar-ring))'
-  			}
-  		},
-  		keyframes: {
-  			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
-  			},
-  			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
-  			}
-  		},
-  		animation: {
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
-  	}
+    screens: {
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1440px",
+    },
+    extend: {
+      fontFamily: {
+        sans: [
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
+      },
+      fontSize: {
+        "go-page": ["var(--go-text-page)", { lineHeight: "var(--go-leading-tight)", fontWeight: "600" }],
+        "go-page-lg": ["var(--go-text-page-lg)", { lineHeight: "var(--go-leading-tight)", fontWeight: "600" }],
+        "go-section": ["var(--go-text-section)", { lineHeight: "var(--go-leading-snug)", fontWeight: "600" }],
+        "go-card": ["var(--go-text-card)", { lineHeight: "var(--go-leading-snug)", fontWeight: "600" }],
+        "go-body": ["var(--go-text-body)", { lineHeight: "var(--go-leading-normal)", fontWeight: "400" }],
+        "go-body-sm": ["var(--go-text-body-sm)", { lineHeight: "var(--go-leading-normal)", fontWeight: "400" }],
+        "go-label": ["var(--go-text-label)", { lineHeight: "var(--go-leading-normal)", fontWeight: "500" }],
+        "go-meta": ["var(--go-text-meta)", { lineHeight: "var(--go-leading-normal)", fontWeight: "400" }],
+      },
+      fontWeight: {
+        "go-normal": "var(--go-weight-normal)",
+        "go-medium": "var(--go-weight-medium)",
+        "go-semibold": "var(--go-weight-semibold)",
+      },
+      spacing: {
+        "go-1": "var(--go-space-1)",
+        "go-2": "var(--go-space-2)",
+        "go-3": "var(--go-space-3)",
+        "go-4": "var(--go-space-4)",
+        "go-5": "var(--go-space-5)",
+        "go-6": "var(--go-space-6)",
+        "go-8": "var(--go-space-8)",
+        "go-page-x": "var(--go-page-px)",
+        "go-page-x-lg": "var(--go-page-px-lg)",
+        "go-page-y": "var(--go-page-py)",
+        "go-section": "var(--go-section-gap)",
+        "go-sidebar": "var(--go-sidebar-w)",
+        "go-sidebar-collapsed": "var(--go-sidebar-w-collapsed)",
+        "go-header": "var(--go-header-h)",
+        "go-control": "var(--go-control-h)",
+        "go-control-lg": "var(--go-control-h-lg)",
+        "go-nav-row": "var(--go-nav-row-h)",
+      },
+      maxWidth: {
+        "go-content": "72rem",
+        "go-content-wide": "90rem",
+        "go-content-narrow": "40rem",
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+        "go-sm": "var(--go-radius-sm)",
+        go: "var(--go-radius)",
+        "go-lg": "var(--go-radius-lg)",
+      },
+      boxShadow: {
+        "go-xs": "var(--go-shadow-xs)",
+        "go-sm": "var(--go-shadow-sm)",
+        "go-md": "var(--go-shadow-md)",
+      },
+      transitionDuration: {
+        "go-fast": "var(--go-duration-fast)",
+        go: "var(--go-duration)",
+        "go-slow": "var(--go-duration-slow)",
+      },
+      transitionTimingFunction: {
+        go: "var(--go-ease)",
+      },
+      height: {
+        "go-control": "var(--go-control-h)",
+        "go-control-lg": "var(--go-control-h-lg)",
+        "go-header": "var(--go-header-h)",
+        "go-nav-row": "var(--go-nav-row-h)",
+      },
+      width: {
+        "go-sidebar": "var(--go-sidebar-w)",
+        "go-sidebar-collapsed": "var(--go-sidebar-w-collapsed)",
+      },
+      colors: {
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+          hover: "var(--go-primary-hover)",
+          muted: "var(--go-primary-muted)",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar-background))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
+        },
+        /* Product semantic palette — prefer these in new UI work */
+        go: {
+          bg: "var(--go-bg)",
+          sidebar: "var(--go-sidebar)",
+          surface: "var(--go-surface)",
+          "surface-muted": "var(--go-surface-muted)",
+          "surface-elevated": "var(--go-surface-elevated)",
+          text: "var(--go-text)",
+          "text-secondary": "var(--go-text-secondary)",
+          "text-muted": "var(--go-text-muted)",
+          border: "var(--go-border)",
+          "border-strong": "var(--go-border-strong)",
+          primary: "var(--go-primary)",
+          "primary-hover": "var(--go-primary-hover)",
+          "primary-foreground": "var(--go-primary-foreground)",
+          "primary-muted": "var(--go-primary-muted)",
+          success: "var(--go-success)",
+          "success-muted": "var(--go-success-muted)",
+          warning: "var(--go-warning)",
+          "warning-muted": "var(--go-warning-muted)",
+          danger: "var(--go-danger)",
+          "danger-muted": "var(--go-danger-muted)",
+          info: "var(--go-info)",
+          "info-muted": "var(--go-info-muted)",
+          focus: "var(--go-focus)",
+        },
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

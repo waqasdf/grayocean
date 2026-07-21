@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MinimalBadge } from "../ui/minimal-badge";
+import { MinimalBadge } from "../ui/minimal-badge"; // Updated import from Badge to MinimalBadge
 import { motion } from "framer-motion";
 
 export default function RiskAnalysis({ riskData }) {
@@ -8,23 +8,23 @@ export default function RiskAnalysis({ riskData }) {
     switch (level) {
       case 'high':
         return {
-          text: 'text-[color:var(--go-error)]',
-          fill: 'var(--go-error)',
+          text: 'text-red-400',
+          gradient: 'from-red-500 to-orange-500',
         };
       case 'medium':
         return {
-          text: 'text-[color:var(--go-warning)]',
-          fill: 'var(--go-warning)',
+          text: 'text-amber-400',
+          gradient: 'from-amber-500 to-yellow-500',
         };
       case 'low':
         return {
-          text: 'text-[color:var(--go-success)]',
-          fill: 'var(--go-success)',
+          text: 'text-green-400',
+          gradient: 'from-green-500 to-emerald-500',
         };
       default:
         return {
-          text: 'text-[color:var(--go-text-muted)]',
-          fill: 'var(--go-text-muted)',
+          text: 'text-gray-400',
+          gradient: 'from-gray-500 to-gray-400',
         };
     }
   };
@@ -32,15 +32,15 @@ export default function RiskAnalysis({ riskData }) {
   const getFlagColor = (level) => {
     switch (level) {
       case 'critical':
-        return 'bg-[color:var(--go-error)]';
+        return 'bg-red-400';
       case 'high':
-        return 'bg-[color:var(--go-warning)]';
+        return 'bg-amber-400';
       case 'medium':
-        return 'bg-[color:var(--go-warning)]';
+        return 'bg-yellow-400';
       case 'low':
-        return 'bg-[color:var(--go-accent)]';
+        return 'bg-blue-400';
       default:
-        return 'bg-[color:var(--go-text-muted)]';
+        return 'bg-gray-400';
     }
   };
 
@@ -52,52 +52,45 @@ export default function RiskAnalysis({ riskData }) {
 
   const isGoodMatch = riskData.is_smart_match;
 
-  const borderStyle = riskData.risk_level === 'high'
-    ? { borderColor: 'var(--go-error-border)' }
+  const borderClass = riskData.risk_level === 'high'
+    ? 'border-red-500/30'
     : riskData.risk_level === 'medium'
-    ? { borderColor: 'var(--go-warning-border)' }
-    : { borderColor: 'var(--go-border)' };
+    ? 'border-amber-500/25'
+    : 'border-white/10';
 
   const leftAccent = riskData.risk_level === 'high'
-    ? 'border-l-4 border-l-[color:var(--go-error)]'
+    ? 'border-l-4 border-l-red-500'
     : riskData.risk_level === 'medium'
-    ? 'border-l-4 border-l-[color:var(--go-warning)]'
+    ? 'border-l-4 border-l-amber-500'
     : '';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 4 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <Card
-        className={`rounded-lg border ${leftAccent}`}
-        style={{ background: 'var(--go-bg-card)', ...borderStyle }}
-      >
-        <CardHeader className="border-b pb-3" style={{ borderColor: 'var(--go-border)' }}>
+      <Card className={`border ${borderClass} ${leftAccent} bg-white/[0.03] backdrop-blur-sm`}>
+        <CardHeader className="border-b border-white/10 pb-4">
           <div>
-            <CardTitle className="text-[13px] font-medium" style={{ color: 'var(--go-text)' }}>
+            <CardTitle className="text-xs font-semibold text-white mb-1">
               Risk Analysis
             </CardTitle>
-            <p className="text-[12px] mt-0.5" style={{ color: 'var(--go-text-muted)' }}>
+            <p className="text-[10px] text-gray-500">
               Assessment of potential security concerns and validity issues
             </p>
           </div>
         </CardHeader>
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-6 space-y-6">
           {hasDeathMasterFileMatch && (
             <motion.div
-              initial={{ opacity: 0, y: 2 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-lg border p-4"
-              style={{
-                background: 'var(--go-error-fill)',
-                borderColor: 'var(--go-error-border)',
-              }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-red-500/20 border-2 border-red-500 rounded-lg p-4"
             >
-              <div className="text-[13px] font-medium mb-1" style={{ color: 'var(--go-error)' }}>
+              <div className="text-xs font-semibold text-red-400 mb-1">
                 Do Not Use This Number
               </div>
-              <div className="text-[12px]" style={{ color: 'var(--go-text-secondary)' }}>
+              <div className="text-[10px] text-gray-300">
                 This SSN may be associated with a deceased individual. Using this number could be illegal and is strongly discouraged.
               </div>
             </motion.div>
@@ -105,18 +98,14 @@ export default function RiskAnalysis({ riskData }) {
 
           {isGoodMatch && !hasDeathMasterFileMatch && (
             <motion.div
-              initial={{ opacity: 0, y: 2 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-lg border p-4"
-              style={{
-                background: 'var(--go-success-fill)',
-                borderColor: 'var(--go-success-border)',
-              }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-green-500/20 border-2 border-green-500 rounded-lg p-4"
             >
-              <div className="text-[13px] font-medium mb-1" style={{ color: 'var(--go-success)' }}>
+              <div className="text-xs font-semibold text-green-400 mb-1">
                 Smart Match
               </div>
-              <div className="text-[12px]" style={{ color: 'var(--go-text-secondary)' }}>
+              <div className="text-[10px] text-gray-300">
                 This number was likely never issued by the SSA and has minimal risk indicators. Ideal for use as a test number or placeholder in scenarios requiring fictional SSN data.
               </div>
             </motion.div>
@@ -125,16 +114,17 @@ export default function RiskAnalysis({ riskData }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <div>
-                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--go-text-muted)' }}>Risk Score</span>
-                <p className="text-[12px] mt-0.5" style={{ color: 'var(--go-text-muted)' }}>
+                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Risk Score</span>
+                <p className="text-[10px] text-gray-600 mt-0.5">
                   How problematic this number is. Higher = more issues detected
                 </p>
               </div>
+              {/* Replaced Badge with MinimalBadge */}
               <MinimalBadge 
                 variant={
                   riskData.risk_level === 'high' ? 'warning' :
                   riskData.risk_level === 'medium' ? 'cyan' :
-                  'success'
+                  'success' // Assuming 'low' maps to 'success'
                 }
                 size="xs"
               >
@@ -144,20 +134,16 @@ export default function RiskAnalysis({ riskData }) {
             
             <div className="flex items-center gap-4">
               <div className="flex-1">
-                <div
-                  className="h-1.5 rounded-full overflow-hidden"
-                  style={{ background: 'var(--go-bg-panel)' }}
-                >
+                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${riskData.score}%` }}
                     transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full rounded-full"
-                    style={{ background: colors.fill }}
+                    className={`h-full rounded-full bg-gradient-to-r ${colors.gradient}`}
                   />
                 </div>
               </div>
-              <span className={`text-lg font-semibold font-mono ${colors.text}`}>
+              <span className={`text-xl font-bold font-mono ${colors.text}`}>
                 {riskData.score}
               </span>
             </div>
@@ -166,48 +152,40 @@ export default function RiskAnalysis({ riskData }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <div>
-                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--go-text-muted)' }}>Confidence Level</span>
-                <p className="text-[12px] mt-0.5" style={{ color: 'var(--go-text-muted)' }}>
+                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Confidence Level</span>
+                <p className="text-[10px] text-gray-600 mt-0.5">
                   How certain we are about our findings
                 </p>
               </div>
-              <span className="text-[13px] font-mono" style={{ color: 'var(--go-text)' }}>{riskData.confidence}%</span>
+              <span className="text-xs font-mono text-white">{riskData.confidence}%</span>
             </div>
-            <div
-              className="h-1.5 rounded-full overflow-hidden"
-              style={{ background: 'var(--go-bg-panel)' }}
-            >
+            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${riskData.confidence}%` }}
                 transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                className="h-full rounded-full"
-                style={{ background: 'var(--go-accent)' }}
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"
               />
             </div>
           </div>
 
           {riskData.flags && riskData.flags.length > 0 && (
             <div>
-              <h3 className="text-[11px] font-medium uppercase tracking-wider mb-3" style={{ color: 'var(--go-text-muted)' }}>Detection Flags</h3>
+              <h3 className="text-[10px] font-semibold text-white uppercase tracking-wider mb-3">Detection Flags</h3>
               <div className="space-y-2">
                 {riskData.flags.map((flag, index) => {
                   const flagColor = getFlagColor(flag.level);
                   return (
                     <motion.div
                       key={index}
-                      initial={{ opacity: 0, y: 2 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="flex items-start gap-3 p-3 rounded-lg border transition-colors"
-                      style={{
-                        background: 'var(--go-bg-panel)',
-                        borderColor: 'var(--go-border)',
-                      }}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-start gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:border-blue-500/30 hover:bg-gradient-to-r hover:from-blue-500/5 hover:to-gray-500/5 transition-all"
                     >
                       <div className={`w-1.5 h-1.5 rounded-full ${flagColor} mt-1.5 flex-shrink-0`}></div>
                       <div className="flex-1">
-                        <p className="text-[12px]" style={{ color: 'var(--go-text-secondary)' }}>{flag.message}</p>
+                        <p className="text-[10px] text-gray-300">{flag.message}</p>
                       </div>
                     </motion.div>
                   );

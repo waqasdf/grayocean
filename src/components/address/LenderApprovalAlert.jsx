@@ -12,7 +12,7 @@ export default function LenderApprovalAlert({ addressData }) {
     if (score >= 90) {
       return {
         level: 'excellent',
-        variant: 'info',
+        variant: 'purple',
         title: 'Excellent Lending Profile',
         message: 'This address demonstrates exceptional lending characteristics. Properties in this area typically receive favorable loan terms, lower interest rates, and streamlined approval processes. High-income demographics and strong home values indicate minimal default risk.',
         factors: [
@@ -27,7 +27,7 @@ export default function LenderApprovalAlert({ addressData }) {
     if (score >= 80) {
       return {
         level: 'very-good',
-        variant: 'info',
+        variant: 'blue',
         title: 'Strong Lending Potential',
         message: 'This address shows very favorable lending characteristics. Above-average income levels and home values suggest strong borrower qualification potential and reliable property valuations for collateral assessment.',
         factors: [
@@ -42,7 +42,7 @@ export default function LenderApprovalAlert({ addressData }) {
     if (score >= 70) {
       return {
         level: 'good',
-        variant: 'info',
+        variant: 'cyan',
         title: 'Good Lending Conditions',
         message: 'This address is in a stable lending environment. Standard approval processes apply with good qualification potential for borrowers meeting typical credit and income requirements.',
         factors: [
@@ -57,7 +57,7 @@ export default function LenderApprovalAlert({ addressData }) {
     if (score >= 60) {
       return {
         level: 'moderate',
-        variant: 'neutral',
+        variant: 'info',
         title: 'Moderate Lending Environment',
         message: 'This address falls in a moderate lending category. Borrowers may need to demonstrate stronger financial profiles or provide additional documentation. Property valuations should be carefully verified.',
         factors: [
@@ -107,46 +107,38 @@ export default function LenderApprovalAlert({ addressData }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card className="go-panel shadow-none">
-        <CardContent className="p-4 md:p-5">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-[var(--go-accent-soft)] border border-[color:var(--go-accent-border)] flex items-center justify-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--go-accent)]"></div>
-              </div>
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <h3 className="text-[13px] font-semibold text-[color:var(--go-text)]">
-                  {insights.title}
-                </h3>
-                <MinimalBadge variant={insights.variant} size="xs">
-                  Lending Assessment
-                </MinimalBadge>
-              </div>
-              
-              <p className="text-[13px] text-[color:var(--go-text-secondary)] leading-relaxed mb-3">
-                {insights.message}
-              </p>
-              
-              <div className="space-y-1.5">
-                <div className="text-[12px] font-medium text-[color:var(--go-text-muted)]">
-                  Key Factors
-                </div>
-                {insights.factors.map((factor, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1 h-1 rounded-full bg-[var(--go-accent)] mt-1.5 flex-shrink-0"></div>
-                    <span className="text-[12px] text-[color:var(--go-text-muted)] leading-relaxed">{factor}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+      <Card>
+        <CardContent className="p-6">
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <h3 className="text-[14px] font-medium text-go-text">{insights.title}</h3>
+            <MinimalBadge variant={insights.variant} size="xs">
+              Lending assessment
+            </MinimalBadge>
           </div>
-          
-          <div className="mt-4 pt-3 border-t border-[color:var(--go-border)]">
-            <p className="text-[12px] text-[color:var(--go-text-muted)]">
-              <span className="font-medium text-[color:var(--go-text-secondary)]">Disclaimer:</span> This assessment is based on demographic and economic data analysis. Actual lending decisions depend on individual borrower qualifications, credit history, debt-to-income ratios, and lender-specific criteria. Consult with licensed mortgage professionals for definitive lending guidance.
+
+          <p className="mb-4 text-[13px] leading-relaxed text-go-text-secondary">
+            {insights.message}
+          </p>
+
+          <div className="space-y-2">
+            <div className="text-[12px] font-medium text-go-text-muted">Key factors</div>
+            {insights.factors.map((factor, index) => (
+              <div key={index} className="flex items-start gap-2">
+                <div className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-go-primary" />
+                <span className="text-[13px] leading-relaxed text-go-text-secondary">
+                  {factor}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 border-t border-go-border pt-4">
+            <p className="text-[12px] text-go-text-muted">
+              <span className="font-medium text-go-text-secondary">Disclaimer:</span> This
+              assessment is based on demographic and economic data analysis. Actual lending
+              decisions depend on individual borrower qualifications, credit history,
+              debt-to-income ratios, and lender-specific criteria. Consult with licensed
+              mortgage professionals for definitive lending guidance.
             </p>
           </div>
         </CardContent>

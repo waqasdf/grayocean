@@ -1,85 +1,91 @@
-import React from "react";
+import React from 'react';
 import { Input } from "@/components/ui/input";
 
-export default function SSNInput({
-  value,
-  onChange,
-  isValid,
-  error,
-  isProcessing,
-  isSubscribed = true,
-}) {
+export default function SSNInput({ value, onChange, isValid, error, isProcessing, isSubscribed = true }) {
   const formatSSN = (val) => {
-    const numbers = val.replace(/\D/g, "");
+    const numbers = val.replace(/\D/g, '');
     if (numbers.length <= 3) return numbers;
     if (numbers.length <= 5) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 5)}-${numbers.slice(5, 9)}`;
   };
 
-  const borderColor = error
-    ? "var(--go-error-border)"
-    : value.length === 11 && isValid
-      ? "var(--go-success-border)"
-      : "var(--go-input-border)";
+  const handleChange = (e) => {
+    const formatted = formatSSN(e.target.value);
+    onChange(formatted);
+  };
+
+  const handleClear = () => {
+    onChange('');
+  };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="relative">
-        <Input
-          type="tel"
-          inputMode="numeric"
-          pattern="[0-9-]*"
-          value={value}
-          onChange={(e) => onChange(formatSSN(e.target.value))}
-          placeholder="000-00-0000"
-          maxLength={11}
-          autoComplete="off"
-          disabled={isProcessing}
-          readOnly={!isSubscribed && value.length === 11}
-          className="h-12 text-[16px] font-mono tracking-[0.2em] text-center rounded-lg border focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-50 transition-[border-color,box-shadow] duration-200"
-          style={{
-            background: "var(--go-input-bg)",
-            borderColor,
-            color: "var(--go-input-text)",
-            boxShadow:
-              value.length === 11 && isValid && !error
-                ? "0 0 0 3px rgba(76, 183, 130, 0.15)"
-                : undefined,
-          }}
-        />
-
+        <div className="relative rounded-xl p-[2px] bg-gradient-to-r from-blue-400 via-gray-400 to-blue-500 bg-[length:200%_auto] animate-gradient opacity-0 focus-within:opacity-100 transition-opacity duration-300">
+          <Input
+            type="tel"
+            inputMode="numeric"
+            pattern="[0-9-]*"
+            value={value}
+            onChange={handleChange}
+            placeholder="000-00-0000"
+            maxLength={11}
+            autoComplete="off"
+            disabled={isProcessing}
+            readOnly={!isSubscribed && value.length === 11}
+            className="h-16 text-xl font-mono tracking-[0.3em] text-center bg-[hsl(0,0%,9%)] border-0 text-white placeholder:text-gray-700 rounded-xl disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0"
+          />
+        </div>
+        
+        <div className="absolute inset-0 rounded-xl pointer-events-none">
+          <Input
+            type="text"
+            value={value}
+            tabIndex={-1}
+            disabled
+            className="h-16 text-xl font-mono tracking-[0.3em] text-center bg-white/5 border-white/10 text-white placeholder:text-gray-700 rounded-xl opacity-0 peer-focus:opacity-0"
+          />
+        </div>
+        
         {value.length === 11 && !isProcessing && (
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{ background: isValid ? "var(--go-success)" : "var(--go-error)" }}
-            />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+            {isValid ? (
+              <div className="w-2 h-2 rounded-full bg-green-400"></div>
+            ) : (
+              <div className="w-2 h-2 rounded-full bg-red-400"></div>
+            )}
           </div>
         )}
-
+        
         {isProcessing && (
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-            <div className="go-app-spinner" />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
           </div>
         )}
       </div>
 
       {!value && !error && (
-        <p className="text-center text-[14px]" style={{ color: "var(--go-text-muted)" }}>
-          Type all 9 digits — analysis runs automatically
-        </p>
+        <div className="text-center">
+          <p className="text-xs text-gray-600">
+            Type all 9 digits — analysis runs automatically
+          </p>
+        </div>
       )}
 
       {error && (
-        <div
-          className="text-center text-[14px] rounded-xl px-4 py-2.5"
-          style={{
-            color: "var(--go-error)",
-            background: "var(--go-error-fill)",
-            border: "1px solid var(--go-error-border)",
-          }}
-        >
-          {error}
+        <div className="flex items-center justify-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+          <span>{error}</span>
+        </div>
+      )}
+
+      {value.length > 0 && !error && (
+        <div className="flex items-center justify-center gap-4 text-xs text-gray-600">
+          <button onClick={handleClear} className="hover:text-white transition-colors">
+            Clear
+          </button>
+          <div className="flex items-center gap-1.5">
+            <span>Encrypted</span>
+          </div>
         </div>
       )}
     </div>

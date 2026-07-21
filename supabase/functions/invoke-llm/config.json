@@ -1,0 +1,4 @@
+{
+  "name": "invoke-llm",
+  "verify_jwt": true
+}

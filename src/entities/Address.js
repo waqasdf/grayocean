@@ -1,3 +1,3 @@
-import { db } from '@/api/localClient'
-export const Address = db.entities.Address
-export default Address
+import { createEntity } from "@/lib/entityClient";
+
+export const Address = createEntity("addresses");

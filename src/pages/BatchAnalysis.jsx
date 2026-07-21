@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { BatchAnalysis } from "@/entities/BatchAnalysis";
 import { User } from "@/entities/User";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { MinimalBadge } from "@/components/ui/minimal-badge";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { BlurredSSN, UpgradePrompt } from "../components/ssn/BlurredSSN";
 import RiskDistributionChart from "../components/batch/RiskDistributionChart";
 import StatePatternChart from "../components/batch/StatePatternChart";
 import { getStateFromArea } from "../lib/ssnState";
-import { Download, Layers, AlertTriangle, CheckCircle2, XCircle, BarChart3 } from "lucide-react";
+import {
+  WorkspacePage,
+  WorkspacePanel,
+  PrimaryButton,
+  GhostButton,
+} from "@/components/dashboard";
+import { LookupCostHint } from "@/components/shared/LookupCostHint";
+import { Download, AlertTriangle, CheckCircle2, XCircle, Layers, BarChart3 } from "lucide-react";
 
 export default function BatchAnalysisPage() {
   const [batchName, setBatchName] = useState('');
@@ -119,231 +125,232 @@ export default function BatchAnalysisPage() {
   const validRate = results ? Math.round((results.valid_count / results.total_count) * 100) : 0;
 
   return (
-    <div className="min-h-full">
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-5 md:py-6">
-        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="go-kicker mb-2">Bulk tools</p>
-              <h1 className="go-page-title">Batch Analysis</h1>
-              <p className="go-page-subtitle mt-1.5">Process up to 1,000 SSNs in a single job.</p>
-            </div>
-            {results && (
-              <button
-                onClick={handleExport}
-                disabled={!isSubscribed}
-                className="go-pill-btn !h-9 !text-[12px] !px-4"
-                style={{
-                  background: "transparent",
-                  color: "var(--go-text-body)",
-                  border: "1px solid var(--go-border-strong)",
-                }}
-              >
-                <Download className="w-3.5 h-3.5" />
-                Export CSV
-              </button>
-            )}
-          </div>
-        </motion.div>
-
-      <div className="grid lg:grid-cols-5 gap-6">
-          {/* Input panel */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="lg:col-span-2 space-y-4"
-          >
-            <div className="go-panel overflow-hidden">
-              <div className="px-4 py-3 border-b border-[color:var(--go-border)]">
-                <span className="text-[12px] font-medium text-[color:var(--go-text-secondary)]">Job Configuration</span>
+    <WorkspacePage
+      title="Batch Analysis"
+      description="Process up to 1,000 SSNs in a single job."
+      maxWidth="max-w-6xl"
+      actions={
+        results ? (
+          <GhostButton onClick={handleExport} disabled={!isSubscribed}>
+            <Download className="size-3.5" />
+            Export CSV
+          </GhostButton>
+        ) : null
+      }
+    >
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="space-y-4 lg:col-span-2">
+          <WorkspacePanel title="Job configuration">
+            <div className="space-y-5">
+              <div>
+                <label className="mb-2 block text-[13px] text-go-text-secondary">
+                  Batch name
+                </label>
+                <Input
+                  placeholder="Q1 2025 Analysis"
+                  value={batchName}
+                  onChange={(e) => setBatchName(e.target.value)}
+                />
               </div>
-              <div className="p-4 space-y-4">
+
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="text-[13px] text-go-text-secondary">SSN list</label>
+                  <span
+                    className={`font-mono text-[12px] ${
+                      ssnCount > 900 ? "text-go-warning" : "text-go-text-muted"
+                    }`}
+                  >
+                    {ssnCount.toLocaleString()} / 1,000
+                  </span>
+                </div>
+                <Textarea
+                  placeholder={"123-45-6789\n234-56-7890\n345-67-8901"}
+                  value={ssnInput}
+                  onChange={(e) => setSSNInput(e.target.value)}
+                  className="h-52 resize-none font-mono text-[13px] leading-relaxed"
+                />
+                <p className="mt-1.5 text-[12px] text-go-text-muted">
+                  One SSN per line — formatted or raw digits accepted
+                </p>
+              </div>
+
+              {error && (
+                <div className="flex items-start gap-2.5 rounded-[10px] border border-go-danger/30 bg-go-danger/10 p-3">
+                  <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-go-danger" />
+                  <span className="text-[13px] text-go-danger">{error}</span>
+                </div>
+              )}
+
+              <LookupCostHint
+                label="Batch (unit × rows)"
+                costCents={Math.max(ssnCount, 0) * 10}
+                className="mt-0 mb-3"
+              />
+              <PrimaryButton
+                onClick={handleAnalyze}
+                disabled={isAnalyzing || ssnCount === 0}
+                className="w-full"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <div className="size-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <BarChart3 className="size-3.5" />
+                    Run analysis
+                  </>
+                )}
+              </PrimaryButton>
+
+              {isAnalyzing && (
+                <div className="space-y-1.5">
+                  <div className="h-0.5 overflow-hidden rounded-full bg-go-border">
+                    <motion.div
+                      className="h-full rounded-full bg-go-primary"
+                      style={{ width: `${progress}%` }}
+                      transition={{ duration: 0.1 }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[12px] text-go-text-muted">
+                    <span>Validating patterns...</span>
+                    <span className="font-mono">{Math.round(progress)}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </WorkspacePanel>
+        </div>
+
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            {!results && !isAnalyzing ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-[10px] border border-dashed border-go-border p-12 text-center"
+              >
+                <BarChart3 className="size-5 text-go-text-muted" />
                 <div>
-                  <label className="go-label">Batch Name</label>
-                  <Input
-                    placeholder="Q1 2025 Analysis"
-                    value={batchName}
-                    onChange={(e) => setBatchName(e.target.value)}
-                    className="go-pill-input"
-                  />
+                  <p className="text-[14px] text-go-text-secondary">No results yet</p>
+                  <p className="mt-1 text-[13px] text-go-text-muted">
+                    Configure and run a batch job to see analysis
+                  </p>
+                </div>
+              </motion.div>
+            ) : results ? (
+              <motion.div
+                key="results"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                  {[
+                    { label: "Total", value: results.total_count, icon: Layers },
+                    { label: "Valid", value: results.valid_count, icon: CheckCircle2 },
+                    { label: "Invalid", value: results.invalid_count, icon: XCircle },
+                    { label: "High risk", value: results.high_risk_count, icon: AlertTriangle },
+                  ].map(({ label, value, icon: Icon }) => (
+                    <div
+                      key={label}
+                      className="rounded-[10px] border border-go-border bg-go-surface p-4"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-[13px] text-go-text-muted">{label}</span>
+                        <Icon className="size-3 text-go-text-muted" />
+                      </div>
+                      <div className="font-mono text-2xl font-semibold text-go-text">
+                        {value.toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="go-label !mb-0">SSN List</label>
-                    <span className={`text-[12px] font-mono ${ssnCount > 900 ? 'text-[color:var(--go-warning)]' : 'text-[color:var(--go-text-muted)]'}`}>
-                      {ssnCount.toLocaleString()} / 1,000
+                <div className="rounded-[10px] border border-go-border bg-go-surface p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-[14px] font-medium text-go-text">Validity rate</span>
+                    <span className="font-mono text-sm font-semibold text-go-text">
+                      {validRate}%
                     </span>
                   </div>
-                  <Textarea
-                    placeholder={"123-45-6789\n234-56-7890\n345-67-8901"}
-                    value={ssnInput}
-                    onChange={(e) => setSSNInput(e.target.value)}
-                    className="bg-[var(--go-input-bg)] border-[color:var(--go-input-border)] text-[color:var(--go-input-text)] placeholder:text-[color:var(--go-text-muted)] text-[13px] font-mono h-52 resize-none focus:border-[color:var(--go-accent)] focus:ring-0 leading-relaxed shadow-none"
-                  />
-                  <p className="text-[12px] text-[color:var(--go-text-muted)] mt-1.5">One SSN per line — formatted or raw digits accepted</p>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-go-border">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${validRate}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className="h-full rounded-full bg-go-primary"
+                    />
+                  </div>
+                  <div className="mt-2 flex justify-between text-[12px] text-go-text-muted">
+                    <span>{results.valid_count.toLocaleString()} valid</span>
+                    <span>{results.invalid_count.toLocaleString()} flagged</span>
+                  </div>
                 </div>
 
-                {error && (
-                  <div className="flex items-start gap-2.5 p-3 rounded-lg border border-[color:var(--go-error-border)] bg-[var(--go-error-fill)]">
-                    <AlertTriangle className="w-3.5 h-3.5 text-[color:var(--go-error)] mt-0.5 flex-shrink-0" />
-                    <span className="text-[11px] text-[color:var(--go-error)]">{error}</span>
-                  </div>
-                )}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <RiskDistributionChart results={results} />
+                  <StatePatternChart results={results} />
+                </div>
 
-                <button
-                  onClick={handleAnalyze}
-                  disabled={isAnalyzing || ssnCount === 0}
-                  className="w-full go-pill-btn disabled:opacity-50 disabled:cursor-not-allowed"
+                <WorkspacePanel
+                  title="Records"
+                  actions={
+                    <span className="text-[12px] text-go-text-muted">
+                      {results.results.length > 20
+                        ? `Showing 20 of ${results.results.length}`
+                        : `${results.results.length} records`}
+                    </span>
+                  }
+                  bodyClassName="p-0"
                 >
-                  {isAnalyzing ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <BarChart3 className="w-3.5 h-3.5" />
-                      Run Analysis
-                    </>
-                  )}
-                </button>
-
-                {isAnalyzing && (
-                  <div className="space-y-1.5">
-                    <div className="h-1 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-[var(--go-accent)] rounded-full"
-                        style={{ width: `${progress}%` }}
-                        transition={{ duration: 0.1 }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[12px] text-[color:var(--go-text-muted)]">
-                      <span>Validating patterns...</span>
-                      <span className="font-mono">{Math.round(progress)}%</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Results panel */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-3"
-          >
-            <AnimatePresence mode="wait">
-              {!results && !isAnalyzing ? (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="h-full min-h-64 rounded-lg border border-dashed border-[color:var(--go-border)] flex flex-col items-center justify-center gap-3 text-center p-8"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 text-[color:var(--go-text-muted)]" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-[color:var(--go-text-meta)]">No results yet</p>
-                    <p className="text-[11px] text-[color:var(--go-text-meta)] mt-1">Configure and run a batch job to see analysis</p>
-                  </div>
-                </motion.div>
-              ) : results ? (
-                <motion.div
-                  key="results"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-4"
-                >
-                  {/* Summary metrics */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {[
-                      { label: 'Total', value: results.total_count, color: 'text-[color:var(--go-text)]', icon: Layers },
-                      { label: 'Valid', value: results.valid_count, color: 'text-[color:var(--go-success)]', icon: CheckCircle2 },
-                      { label: 'Invalid', value: results.invalid_count, color: 'text-[color:var(--go-error)]', icon: XCircle },
-                      { label: 'High Risk', value: results.high_risk_count, color: 'text-[color:var(--go-warning)]', icon: AlertTriangle },
-                    ].map(({ label, value, color, icon: Icon }) => (
-                      <div key={label} className="go-panel p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[12px] text-[color:var(--go-text-muted)]">{label}</span>
-                          <Icon className={`w-3 h-3 ${color} opacity-60`} />
+                  <div className="max-h-80 divide-y divide-go-border overflow-y-auto">
+                    {results.results.slice(0, 20).map((result, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-2.5 go-transition hover:bg-white/[0.02]"
+                      >
+                        <span className="min-w-0 font-mono text-[13px] text-go-text-secondary">
+                          <BlurredSSN ssn={result.ssn} isSubscribed={isSubscribed} />
+                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {result.isValid ? (
+                            <MinimalBadge variant="success" size="xs">
+                              Valid
+                            </MinimalBadge>
+                          ) : (
+                            <MinimalBadge variant="neutral" size="xs">
+                              Invalid
+                            </MinimalBadge>
+                          )}
+                          {result.riskLevel === "high" && (
+                            <MinimalBadge variant="warning" size="xs">
+                              High Risk
+                            </MinimalBadge>
+                          )}
                         </div>
-                        <div className={`text-xl font-semibold font-mono ${color}`}>{value.toLocaleString()}</div>
                       </div>
                     ))}
                   </div>
+                  {results.results.length > 20 && (
+                    <div className="border-t border-go-border px-5 py-3 text-[12px] text-go-text-muted">
+                      +{(results.results.length - 20).toLocaleString()} more records — export CSV
+                      to view all
+                    </div>
+                  )}
+                </WorkspacePanel>
 
-                  {/* Valid rate bar */}
-                  <div className="go-panel p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[12px] font-medium text-[color:var(--go-text-secondary)]">Validity Rate</span>
-                      <span className="text-[13px] font-semibold font-mono text-[color:var(--go-text)]">{validRate}%</span>
-                    </div>
-                    <div className="h-1.5 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${validRate}%` }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="h-full rounded-full bg-[var(--go-success)]"
-                      />
-                    </div>
-                    <div className="flex justify-between mt-2 text-[12px] text-[color:var(--go-text-muted)]">
-                      <span>{results.valid_count.toLocaleString()} valid</span>
-                      <span>{results.invalid_count.toLocaleString()} flagged</span>
-                    </div>
-                  </div>
-
-                  {/* Charts */}
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <RiskDistributionChart results={results} />
-                    <StatePatternChart results={results} />
-                  </div>
-
-                  {/* Detailed rows */}
-                  <div className="go-panel overflow-hidden">
-                    <div className="px-4 py-3 border-b border-[color:var(--go-border)] flex items-center justify-between">
-                      <span className="text-[12px] font-medium text-[color:var(--go-text-secondary)]">Records</span>
-                      <span className="text-[12px] text-[color:var(--go-text-muted)]">{results.results.length > 20 ? `Showing 20 of ${results.results.length}` : `${results.results.length} records`}</span>
-                    </div>
-                    <div className="divide-y divide-[color:var(--go-border)] max-h-80 overflow-y-auto">
-                      {results.results.slice(0, 20).map((result, index) => (
-                        <div key={index} className="flex items-center justify-between px-4 py-2.5 hover:bg-[var(--go-bg-panel)] transition-colors">
-                          <span className="font-mono text-[13px] text-[color:var(--go-text-body)]">
-                            <BlurredSSN ssn={result.ssn} isSubscribed={isSubscribed} />
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {result.isValid ? (
-                              <MinimalBadge variant="success" size="xs">Valid</MinimalBadge>
-                            ) : (
-                              <MinimalBadge variant="neutral" size="xs">Invalid</MinimalBadge>
-                            )}
-                            {result.riskLevel === 'high' && (
-                              <MinimalBadge variant="warning" size="xs">High Risk</MinimalBadge>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {results.results.length > 20 && (
-                      <div className="px-4 py-3 border-t border-[color:var(--go-border)] text-[12px] text-[color:var(--go-text-muted)]">
-                        +{(results.results.length - 20).toLocaleString()} more records — export CSV to view all
-                      </div>
-                    )}
-                  </div>
-
-                  {!isSubscribed && <UpgradePrompt />}
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </motion.div>
+                {!isSubscribed && <UpgradePrompt />}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
       </div>
-    </div>
+    </WorkspacePage>
   );
 }

@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom"; // Removed Plus, X, GitCompare
-import { createPageUrl } from "@/utils";
+import {
+  WorkspacePage,
+  WorkspacePanel,
+  PrimaryButton,
+  GhostButton,
+} from "@/components/dashboard";
+import { LookupCostHint } from "@/components/shared/LookupCostHint";
 
 export default function ComparisonPage() {
   const [ssns, setSSNs] = useState(['', '', '']);
@@ -243,308 +246,289 @@ export default function ComparisonPage() {
   const insights = getComparisonInsights();
 
   return (
-    <div className="min-h-full">
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-5 md:py-6">
-        <div className="mb-5">
-          <p className="go-kicker mb-2">Analysis</p>
-          <h1 className="go-page-title">SSN Comparison</h1>
-          <p className="go-page-subtitle mt-1.5">
-            Compare SSNs side by side.
-          </p>
-        </div>
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="go-panel shadow-none">
-              <CardHeader className="border-b border-[color:var(--go-border)] px-4 py-3">
-                <CardTitle className="go-label !mb-0">Enter SSNs to Compare</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {ssns.map((ssn, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] flex items-center justify-center flex-shrink-0">
-                      <span className="text-[12px] font-semibold text-[color:var(--go-text-secondary)]">#{index + 1}</span>
-                    </div>
-                    <Input
-                      type="text"
-                      value={ssn}
-                      onChange={(e) => handleSSNChange(index, e.target.value)}
-                      placeholder="000-00-0000"
-                      maxLength={11}
-                      className="go-pill-input flex-1 font-mono tracking-wider"
-                    />
-                    {ssns.length > 2 && (
-                      <Button
-                        onClick={() => removeSSN(index)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-[color:var(--go-text-secondary)] hover:text-[color:var(--go-error)] flex-shrink-0"
-                      >
-                        Remove
-                      </Button>
-                    )}
+    <WorkspacePage
+      title="SSN Comparison"
+      description="Compare multiple SSNs side-by-side to identify patterns and differences"
+      maxWidth="max-w-4xl"
+    >
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <WorkspacePanel title="Enter SSNs to Compare">
+            <div className="space-y-4">
+              {ssns.map((ssn, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[8px] border border-go-border bg-go-surface-muted">
+                    <span className="text-xs font-semibold text-go-text-muted">#{index + 1}</span>
                   </div>
-                ))}
-
-                {ssns.length < 5 && (
-                  <Button
-                    onClick={addSSN}
-                    variant="outline"
-                    className="w-full border-[color:var(--go-border-strong)] text-[color:var(--go-text-secondary)] hover:text-[color:var(--go-text)]"
-                  >
-                    Add Another SSN
-                  </Button>
-                )}
-
-                <Button
-                  onClick={handleCompare}
-                  disabled={ssns.filter(s => s.replace(/\D/g, '').length === 9).length < 2 || isComparing}
-                  className="w-full h-8 go-pill-btn"
-                >
-                  {isComparing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                      Comparing...
-                    </>
-                  ) : (
-                    <>
-                      Compare SSNs
-                    </>
+                  <Input
+                    type="text"
+                    value={ssn}
+                    onChange={(e) => handleSSNChange(index, e.target.value)}
+                    placeholder="000-00-0000"
+                    maxLength={11}
+                    className="min-w-0 flex-1 font-mono"
+                  />
+                  {ssns.length > 2 && (
+                    <GhostButton
+                      onClick={() => removeSSN(index)}
+                      className="h-10 w-10 flex-shrink-0 px-0 text-go-text-muted hover:text-go-danger sm:h-9 sm:w-auto sm:px-3"
+                      aria-label={`Remove SSN ${index + 1}`}
+                    >
+                      <span className="sm:hidden">×</span>
+                      <span className="hidden sm:inline">Remove</span>
+                    </GhostButton>
                   )}
-                </Button>
-              </CardContent>
-            </Card>
+                </div>
+              ))}
 
-            <AnimatePresence>
-              {results && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-6"
-                >
-                  {insights && insights.length > 0 && (
-                    <Card className="go-panel shadow-none ">
-                      <CardHeader className="border-b border-[color:var(--go-border)]">
-                        <CardTitle className="text-[11px] font-semibold text-[color:var(--go-text-body)] uppercase tracking-widest">
-                          Comparison Insights
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-4 md:p-6 space-y-3">
-                        {insights.map((insight, index) => (
-                          <div
-                            key={index}
-                            className={`flex items-start gap-3 p-3 rounded-lg ${
+              {ssns.length < 5 && (
+                <GhostButton onClick={addSSN} className="w-full">
+                  Add Another SSN
+                </GhostButton>
+              )}
+
+              <LookupCostHint
+                label="SSN validation (per SSN)"
+                costCents={
+                  ssns.filter((s) => s.replace(/\D/g, "").length === 9).length * 10
+                }
+                className="mt-0"
+              />
+              <PrimaryButton
+                onClick={handleCompare}
+                disabled={ssns.filter(s => s.replace(/\D/g, '').length === 9).length < 2 || isComparing}
+                className="w-full gap-2"
+              >
+                {isComparing ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                    Comparing...
+                  </>
+                ) : (
+                  'Compare SSNs'
+                )}
+              </PrimaryButton>
+            </div>
+          </WorkspacePanel>
+
+          <AnimatePresence>
+            {results && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                {insights && insights.length > 0 && (
+                  <WorkspacePanel title="Comparison Insights">
+                    <div className="space-y-3">
+                      {insights.map((insight, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-start gap-3 rounded-[10px] border p-3 ${
+                            insight.type === 'error'
+                              ? 'border-go-danger/30 bg-go-danger-muted'
+                              : insight.type === 'warning'
+                              ? 'border-go-warning/30 bg-go-warning-muted'
+                              : 'border-go-border bg-go-surface-muted'
+                          }`}
+                        >
+                          <span
+                            className={`flex-shrink-0 text-[13px] ${
                               insight.type === 'error'
-                                ? 'bg-[var(--go-error-fill)] border border-[color:var(--go-error-border)]'
+                                ? 'text-go-danger'
                                 : insight.type === 'warning'
-                                ? 'bg-[var(--go-warning-fill)] border border-[color:var(--go-warning-border)]'
-                                : 'bg-[var(--go-accent-soft)] border border-[color:var(--go-accent-border)]'
+                                ? 'text-go-warning'
+                                : 'text-go-primary'
                             }`}
                           >
-                            <span
-                                    className={`text-[12px] flex-shrink-0 ${
-                                insight.type === 'error'
-                                  ? 'text-[color:var(--go-error)]'
-                                  : insight.type === 'warning'
-                                  ? 'text-[color:var(--go-warning)]'
-                                  : 'text-[color:var(--go-accent-text)]'
-                              }`}
-                            >
-                              •
-                            </span>
-                            <p className="text-[11px] text-[color:var(--go-text-secondary)] flex-1">
-                              {insight.message}
-                            </p>
-                          </div>
-                        ))}
-                      </CardContent>
-                    </Card>
-                  )}
+                            •
+                          </span>
+                          <p className="flex-1 text-[13px] text-go-text-secondary">
+                            {insight.message}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </WorkspacePanel>
+                )}
 
-                  <div className="overflow-x-auto -mx-4 md:mx-0">
-                    <div className="inline-block min-w-full align-middle px-4 md:px-0">
-                      <table className="w-full border-collapse">
-                        <thead>
-                          <tr className="border-b border-[color:var(--go-border)]">
-                            <th className="text-left py-3 px-2 md:px-4 text-[10px] font-semibold text-[color:var(--go-text-meta)] uppercase tracking-widest">
-                             Attribute
+                <WorkspacePanel title="Side-by-side" bodyClassName="overflow-x-auto p-0 sm:p-0">
+                  <div className="inline-block min-w-full align-middle">
+                    <table className="w-full min-w-[640px] border-collapse">
+                      <thead>
+                        <tr className="border-b border-go-border">
+                          <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-go-text-muted">
+                            Attribute
+                          </th>
+                          {results.map((result, index) => (
+                            <th key={index} className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-go-text-muted">
+                              SSN #{index + 1}
                             </th>
-                            {results.map((result, index) => (
-                             <th key={index} className="text-left py-3 px-2 md:px-4 text-[10px] font-semibold text-[color:var(--go-text-meta)] uppercase tracking-widest">
-                                SSN #{index + 1}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="border-b border-[color:var(--go-border)] bg-[var(--go-bg-panel)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Number</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4 text-[11px] font-mono text-[color:var(--go-text-body)]">
-                                <div className="truncate">{result.ssn}</div>
-                              </td>
-                            ))}
-                          </tr>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-go-border bg-go-surface-muted/50">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Number</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3 font-mono text-[13px] text-go-text">
+                              <div className="truncate">{result.ssn}</div>
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr className="border-b border-[color:var(--go-border)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Valid</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4">
-                                <Badge
-                                  className={`text-[10px] md:text-xs ${
-                                    result.isValid
-                                      ? 'bg-[var(--go-success-fill)] text-[color:var(--go-success)] border-[color:var(--go-success-border)]'
-                                      : 'bg-[var(--go-error-fill)] text-[color:var(--go-error)] border-[color:var(--go-error-border)]'
-                                  }`}
-                                >
-                                  {result.isValid ? 'Yes' : 'No'}
-                                </Badge>
-                              </td>
-                            ))}
-                          </tr>
+                        <tr className="border-b border-go-border">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Valid</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3">
+                              <Badge
+                                className={`text-[11px] ${
+                                  result.isValid
+                                    ? 'border-go-success/30 bg-go-success-muted text-go-success'
+                                    : 'border-go-danger/30 bg-go-danger-muted text-go-danger'
+                                }`}
+                              >
+                                {result.isValid ? 'Yes' : 'No'}
+                              </Badge>
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr className="border-b border-[color:var(--go-border)] bg-[var(--go-bg-panel)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">State</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-body)]">
-                                <div className="truncate">{result.state}</div>
-                              </td>
-                            ))}
-                          </tr>
+                        <tr className="border-b border-go-border bg-go-surface-muted/50">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">State</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3 text-[13px] text-go-text">
+                              <div className="truncate">{result.state}</div>
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr className="border-b border-[color:var(--go-border)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Year Range</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-body)] font-mono">
-                                {result.yearRange}
-                              </td>
-                            ))}
-                          </tr>
+                        <tr className="border-b border-go-border">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Year Range</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3 font-mono text-[13px] text-go-text">
+                              {result.yearRange}
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr className="border-b border-[color:var(--go-border)] bg-[var(--go-bg-panel)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Area</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-body)] font-mono">
-                                {result.area}
-                              </td>
-                            ))}
-                          </tr>
+                        <tr className="border-b border-go-border bg-go-surface-muted/50">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Area</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3 font-mono text-[13px] text-go-text">
+                              {result.area}
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr className="border-b border-[color:var(--go-border)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Group</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-body)] font-mono">
-                                {result.group}
-                              </td>
-                            ))}
-                          </tr>
+                        <tr className="border-b border-go-border">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Group</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3 font-mono text-[13px] text-go-text">
+                              {result.group}
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr className="border-b border-[color:var(--go-border)] bg-[var(--go-bg-panel)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Serial</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-body)] font-mono">
-                                {result.serial}
-                              </td>
-                            ))}
-                          </tr>
+                        <tr className="border-b border-go-border bg-go-surface-muted/50">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Serial</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3 font-mono text-[13px] text-go-text">
+                              {result.serial}
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr className="border-b border-[color:var(--go-border)]">
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Risk Score</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[11px] font-bold text-[color:var(--go-text-body)] font-mono">
-                                    {result.riskScore}
-                                  </span>
-                                  <div className="flex-1 max-w-[60px] md:max-w-[80px]">
-                                    <div className="h-1.5 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-full overflow-hidden">
-                                      <div
-                                        className={`h-full rounded-full ${
-                                          result.riskLevel === 'high'
-                                            ? 'bg-[var(--go-error)]'
-                                            : result.riskLevel === 'medium'
-                                            ? 'bg-[var(--go-warning)]'
-                                            : 'bg-[var(--go-success)]'
-                                        }`}
-                                        style={{ width: `${result.riskScore}%` }}
-                                      />
-                                    </div>
+                        <tr className="border-b border-go-border">
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Risk Score</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-[13px] font-semibold text-go-text">
+                                  {result.riskScore}
+                                </span>
+                                <div className="max-w-[60px] flex-1 md:max-w-[80px]">
+                                  <div className="h-1.5 overflow-hidden rounded-full bg-go-surface-muted">
+                                    <div
+                                      className={`h-full rounded-full ${
+                                        result.riskLevel === 'high'
+                                          ? 'bg-go-danger'
+                                          : result.riskLevel === 'medium'
+                                          ? 'bg-go-warning'
+                                          : 'bg-go-success'
+                                      }`}
+                                      style={{ width: `${result.riskScore}%` }}
+                                    />
                                   </div>
                                 </div>
-                              </td>
-                            ))}
-                          </tr>
+                              </div>
+                            </td>
+                          ))}
+                        </tr>
 
-                          <tr>
-                            <td className="py-3 px-2 md:px-4 text-[11px] text-[color:var(--go-text-muted)]">Risk Level</td>
-                            {results.map((result, index) => (
-                              <td key={index} className="py-3 px-2 md:px-4">
-                                <Badge
-                                  className={`text-[10px] md:text-xs ${
-                                    result.riskLevel === 'high'
-                                      ? 'bg-[var(--go-error-fill)] text-[color:var(--go-error)] border-[color:var(--go-error-border)]'
-                                      : result.riskLevel === 'medium'
-                                      ? 'bg-[var(--go-warning-fill)] text-[color:var(--go-warning)] border-[color:var(--go-warning-border)]'
-                                      : 'bg-[var(--go-success-fill)] text-[color:var(--go-success)] border-[color:var(--go-success-border)]'
-                                  }`}
-                                >
-                                  {result.riskLevel.toUpperCase()}
-                                </Badge>
-                              </td>
-                            ))}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                        <tr>
+                          <td className="px-4 py-3 text-[13px] text-go-text-muted">Risk Level</td>
+                          {results.map((result, index) => (
+                            <td key={index} className="px-4 py-3">
+                              <Badge
+                                className={`text-[11px] ${
+                                  result.riskLevel === 'high'
+                                    ? 'border-go-danger/30 bg-go-danger-muted text-go-danger'
+                                    : result.riskLevel === 'medium'
+                                    ? 'border-go-warning/30 bg-go-warning-muted text-go-warning'
+                                    : 'border-go-success/30 bg-go-success-muted text-go-success'
+                                }`}
+                              >
+                                {result.riskLevel.toUpperCase()}
+                              </Badge>
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                </WorkspacePanel>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-          <div>
-            <Card className="go-panel shadow-none ">
-              <CardHeader className="border-b border-[color:var(--go-border)]">
-                <CardTitle className="text-[11px] font-semibold text-[color:var(--go-text-body)] uppercase tracking-widest">
-                  How to Use
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 md:p-6">
-                <ol className="space-y-3 text-[11px] text-[color:var(--go-text-muted)]">
-                  <li className="flex gap-3">
-                    <span className="font-bold text-[color:var(--go-accent-text)] flex-shrink-0 text-[11px]">1.</span>
-                    <span className="text-[11px] text-[color:var(--go-text-muted)]">Enter 2-5 SSNs you want to compare</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="font-bold text-[color:var(--go-accent-text)] flex-shrink-0 text-[11px]">2.</span>
-                    <span className="text-[11px] text-[color:var(--go-text-muted)]">Click "Compare SSNs" to analyze</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="font-bold text-[color:var(--go-accent-text)] flex-shrink-0 text-[11px]">3.</span>
-                    <span className="text-[11px] text-[color:var(--go-text-muted)]">Review side-by-side comparison table</span>
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="font-bold text-[color:var(--go-accent-text)] flex-shrink-0 text-[11px]">4.</span>
-                    <span className="text-[11px] text-[color:var(--go-text-muted)]">Check insights for patterns and anomalies</span>
-                  </li>
-                </ol>
+        <div>
+          <WorkspacePanel title="How to Use">
+            <ol className="space-y-3 text-[13px] text-go-text-secondary">
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 font-semibold text-go-primary">1.</span>
+                <span>Enter 2-5 SSNs you want to compare</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 font-semibold text-go-primary">2.</span>
+                <span>Click &quot;Compare SSNs&quot; to analyze</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 font-semibold text-go-primary">3.</span>
+                <span>Review side-by-side comparison table</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 font-semibold text-go-primary">4.</span>
+                <span>Check insights for patterns and anomalies</span>
+              </li>
+            </ol>
 
-                <div className="mt-6 pt-6 border-t border-[color:var(--go-border-strong)]">
-                  <h3 className="text-[10px] font-semibold text-[color:var(--go-text-muted)] uppercase tracking-widest mb-3">
-                    Use Cases
-                  </h3>
-                  <ul className="space-y-2 text-[11px] text-[color:var(--go-text-meta)]">
-                    <li>• Identify test numbers vs real patterns</li>
-                    <li>• Compare risk scores across datasets</li>
-                    <li>• Find geographic patterns in SSNs</li>
-                    <li>• Validate batch consistency</li>
-                    <li>• Educational analysis</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+            <div className="mt-6 border-t border-go-border pt-6">
+              <h3 className="mb-3 text-[11px] font-medium uppercase tracking-wider text-go-text-muted">
+                Use Cases
+              </h3>
+              <ul className="space-y-2 text-[13px] text-go-text-muted">
+                <li>• Identify test numbers vs real patterns</li>
+                <li>• Compare risk scores across datasets</li>
+                <li>• Find geographic patterns in SSNs</li>
+                <li>• Validate batch consistency</li>
+                <li>• Educational analysis</li>
+              </ul>
+            </div>
+          </WorkspacePanel>
         </div>
       </div>
-    </div>
+    </WorkspacePage>
   );
 }

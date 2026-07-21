@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Address } from "@/entities/Address";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { InvokeLLM } from "@/integrations/Core";
 import AddressMap from "../components/address/AddressMap";
@@ -10,6 +9,13 @@ import SaveAddressButton from "../components/address/SaveAddressButton";
 import AdditionalIntelligence from "../components/address/AdditionalIntelligence";
 import { MinimalBadge } from "../components/ui/minimal-badge";
 import LenderApprovalAlert from "../components/address/LenderApprovalAlert";
+import {
+  WorkspacePage,
+  WorkspacePanel,
+  PrimaryButton,
+  GhostButton,
+} from "@/components/dashboard";
+import { LookupCostHint } from "@/components/shared/LookupCostHint";
 
 export default function AddressLookupPage() {
   const [address, setAddress] = useState({
@@ -57,21 +63,21 @@ export default function AddressLookupPage() {
   };
 
   const getScoreGrade = (score) => {
-    if (score >= 90) return { label: 'Elite', color: 'text-[color:var(--go-accent-text)]' };
-    if (score >= 80) return { label: 'Excellent', color: 'text-[color:var(--go-accent-text)]' };
-    if (score >= 70) return { label: 'Very Good', color: 'text-[color:var(--go-accent-text)]' };
-    if (score >= 60) return { label: 'Good', color: 'text-[color:var(--go-accent-text)]' };
-    if (score >= 50) return { label: 'Average', color: 'text-[color:var(--go-text-secondary)]' };
-    return { label: 'Below Average', color: 'text-[color:var(--go-text-muted)]' };
+    if (score >= 90) return { label: 'Elite', color: 'text-go-primary', gradient: 'from-go-primary to-go-text-muted' };
+    if (score >= 80) return { label: 'Excellent', color: 'text-go-primary', gradient: 'from-go-primary to-go-border-strong' };
+    if (score >= 70) return { label: 'Very Good', color: 'text-go-text', gradient: 'from-go-text-secondary to-go-primary' };
+    if (score >= 60) return { label: 'Good', color: 'text-go-text-secondary', gradient: 'from-go-text-muted to-go-border-strong' };
+    if (score >= 50) return { label: 'Average', color: 'text-go-text-muted', gradient: 'from-go-text-muted to-go-border' };
+    return { label: 'Below Average', color: 'text-go-text-muted', gradient: 'from-go-border-strong to-go-border' };
   };
 
   const getIncomeBracket = (income) => {
-    if (income < 35000) return { label: 'Low Income', color: 'text-[color:var(--go-text-muted)]', bg: 'bg-[var(--go-bg-panel)]', border: 'border-[color:var(--go-border)]' };
-    if (income < 60000) return { label: 'Below Average', color: 'text-[color:var(--go-text-secondary)]', bg: 'bg-[var(--go-bg-panel)]', border: 'border-[color:var(--go-border)]' };
-    if (income < 90000) return { label: 'Average', color: 'text-[color:var(--go-accent-text)]', bg: 'bg-[var(--go-accent-soft)]', border: 'border-[color:var(--go-accent-border)]' };
-    if (income < 120000) return { label: 'Above Average', color: 'text-[color:var(--go-accent-text)]', bg: 'bg-[var(--go-accent-soft)]', border: 'border-[color:var(--go-accent-border)]' };
-    if (income < 150000) return { label: 'High Income', color: 'text-[color:var(--go-accent-text)]', bg: 'bg-[var(--go-accent-soft)]', border: 'border-[color:var(--go-accent-border)]' };
-    return { label: 'Very High Income', color: 'text-[color:var(--go-accent-text)]', bg: 'bg-[var(--go-accent-soft)]', border: 'border-[color:var(--go-accent-border)]' };
+    if (income < 35000) return { label: 'Low Income', color: 'text-go-text-muted', bg: 'bg-go-surface-muted', border: 'border-go-border' };
+    if (income < 60000) return { label: 'Below Average', color: 'text-go-text-secondary', bg: 'bg-go-surface-muted', border: 'border-go-border' };
+    if (income < 90000) return { label: 'Average', color: 'text-go-text', bg: 'bg-go-surface-muted', border: 'border-go-border' };
+    if (income < 120000) return { label: 'Above Average', color: 'text-go-primary', bg: 'bg-go-surface-muted', border: 'border-go-border' };
+    if (income < 150000) return { label: 'High Income', color: 'text-go-primary', bg: 'bg-go-surface-muted', border: 'border-go-border' };
+    return { label: 'Very High Income', color: 'text-go-primary', bg: 'bg-go-surface-muted', border: 'border-go-border' };
   };
 
   const fetchAddressSuggestions = async (inputValue) => {
@@ -437,84 +443,70 @@ Use real data sources when possible. Provide specific, actionable intelligence.`
   };
 
   return (
-    <div className="min-h-full">
-      <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-5 md:py-6">
-        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
-          <p className="go-kicker mb-2">Location intel</p>
-          <h1 className="go-page-title">Address Intelligence</h1>
-          <p className="go-page-subtitle mt-1.5">
-            Demographics and market data for an address.
-          </p>
-        </motion.div>
+    <WorkspacePage
+      title="Address Intelligence"
+      description="Comprehensive demographic analysis and market research"
+      maxWidth="max-w-[900px]"
+    >
+      <WorkspacePanel className="mb-8">
+        <div className="space-y-4">
+          <div className="relative" ref={suggestionsRef}>
+            <Input
+              placeholder="Enter street address"
+              value={address.street}
+              onChange={(e) => handleStreetChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onKeyDown={(e) => e.key === 'Enter' && !showSuggestions && handleSearch()}
+              onFocus={() => address.street.length >= 3 && suggestions.length > 0 && setShowSuggestions(true)}
+              disabled={isSearching || rateLimitCooldown > 0}
+            />
 
-        {/* Main Input */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="go-panel p-4 md:p-5 mb-6"
-        >
-          <div className="space-y-4">
-            <div className="relative" ref={suggestionsRef}>
-              <Input
-                placeholder="Enter street address"
-                value={address.street}
-                onChange={(e) => handleStreetChange(e.target.value)}
-                onKeyDown={(e) => {
-                  handleKeyDown(e);
-                  if (e.key === "Enter" && !showSuggestions) handleSearch();
-                }}
-                onFocus={() => address.street.length >= 3 && suggestions.length > 0 && setShowSuggestions(true)}
-                disabled={isSearching || rateLimitCooldown > 0}
-                className="go-pill-input !h-9 text-center"
-              />
+            {isLoadingSuggestions && (
+              <div className="absolute right-4 top-1/2 z-10 -translate-y-1/2">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-go-border border-t-go-text" />
+              </div>
+            )}
 
-              {isLoadingSuggestions && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                </div>
+            <AnimatePresence>
+              {showSuggestions && suggestions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute z-50 mt-2 w-full overflow-hidden rounded-[10px] border border-go-border bg-go-surface-elevated shadow-go-sm"
+                >
+                  {suggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => selectSuggestion(suggestion)}
+                      className={`w-full px-4 py-3 text-left text-sm transition-colors ${
+                        index === selectedSuggestionIndex
+                          ? 'bg-go-surface-muted text-go-text'
+                          : 'text-go-text-secondary hover:bg-go-surface-muted hover:text-go-text'
+                      } ${index !== suggestions.length - 1 ? 'border-b border-go-border' : ''}`}
+                    >
+                      <div className="font-medium text-go-text">{suggestion.street}</div>
+                      <div className="mt-0.5 text-xs text-go-text-muted">
+                        {suggestion.city}, {suggestion.state} {suggestion.zip}
+                      </div>
+                    </button>
+                  ))}
+                </motion.div>
               )}
+            </AnimatePresence>
+          </div>
 
-              {/* Suggestions Dropdown */}
-              <AnimatePresence>
-                {showSuggestions && suggestions.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute z-50 w-full mt-2 bg-[var(--go-bg-card)] border border-[color:var(--go-border)] rounded-lg shadow-none overflow-hidden"
-                  >
-                    {suggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => selectSuggestion(suggestion)}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors ${
-                          index === selectedSuggestionIndex
-                            ? 'bg-[var(--go-accent-soft)] text-white'
-                            : 'text-[color:var(--go-text-body)] hover:bg-[var(--go-bg-panel)]'
-                        } ${index !== suggestions.length - 1 ? 'border-b border-white/5' : ''}`}
-                      >
-                        <div className="font-medium">{suggestion.street}</div>
-                        <div className="text-xs text-[color:var(--go-text-muted)] mt-0.5">
-                          {suggestion.city}, {suggestion.state} {suggestion.zip}
-                        </div>
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <Input
-                placeholder="City"
-                value={address.city}
-                onChange={(e) => setAddress({...address, city: e.target.value})}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                disabled={isSearching || rateLimitCooldown > 0}
-                className="go-pill-input !h-9 text-center"
-              />
+          <div className="space-y-3">
+            <Input
+              placeholder="City"
+              value={address.city}
+              onChange={(e) => setAddress({...address, city: e.target.value})}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              disabled={isSearching || rateLimitCooldown > 0}
+            />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-[5rem_1fr]">
               <Input
                 placeholder="ST"
                 value={address.state}
@@ -522,7 +514,7 @@ Use real data sources when possible. Provide specific, actionable intelligence.`
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 disabled={isSearching || rateLimitCooldown > 0}
                 maxLength={2}
-                className="go-pill-input !h-9 text-center uppercase"
+                className="uppercase"
               />
               <Input
                 placeholder="ZIP"
@@ -531,54 +523,57 @@ Use real data sources when possible. Provide specific, actionable intelligence.`
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 disabled={isSearching || rateLimitCooldown > 0}
                 maxLength={5}
-                className="go-pill-input !h-9 text-center"
               />
             </div>
           </div>
+        </div>
 
-          {!address.street && !error && (
-            <div className="text-center mt-6">
-              <p className="text-[11px] text-[color:var(--go-text-meta)]">
-                Enter an address to analyze demographics and market data
-              </p>
-            </div>
-          )}
+        {!address.street && !error && (
+          <p className="mt-6 text-center text-[13px] text-go-text-muted">
+            Enter an address to analyze demographics and market data
+          </p>
+        )}
 
-          {error && (
-            <div className={`mt-4 p-3 rounded-lg ${error.includes('Rate limit') || error.includes('Too many') ? 'bg-[var(--go-accent-soft)] border border-[color:var(--go-accent-border)]' : 'bg-[var(--go-error-fill)] border border-[color:var(--go-error-border)]'}`}>
-              <p className={`text-xs text-center ${error.includes('Rate limit') || error.includes('Too many') ? 'text-[color:var(--go-accent-text)]' : 'text-[color:var(--go-error)]'}`}>
-                {error}
-              </p>
-              {rateLimitCooldown > 0 && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="flex-1 h-1.5 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[var(--go-accent)] transition-all duration-1000"
-                        style={{ width: `${(rateLimitCooldown / 30) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-mono text-[color:var(--go-accent-text)]">{rateLimitCooldown}s</span>
+        {error && (
+          <div className={`mt-4 rounded-[10px] border p-3 ${
+            error.includes('Rate limit') || error.includes('Too many')
+              ? 'border-go-border bg-go-surface-muted'
+              : 'border-go-danger/30 bg-go-danger-muted'
+          }`}>
+            <p className={`text-center text-[13px] ${
+              error.includes('Rate limit') || error.includes('Too many')
+                ? 'text-go-text-secondary'
+                : 'text-go-danger'
+            }`}>
+              {error}
+            </p>
+            {rateLimitCooldown > 0 && (
+              <div className="mt-2">
+                <div className="mb-1 flex items-center gap-2">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-go-surface-muted">
+                    <div
+                      className="h-full bg-go-primary transition-all duration-1000"
+                      style={{ width: `${(rateLimitCooldown / 30) * 100}%` }}
+                    />
                   </div>
+                  <span className="font-mono text-xs text-go-primary">{rateLimitCooldown}s</span>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
+        )}
 
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="mt-4 flex items-center justify-center gap-3"
-          >
-            <button
+        <div className="mt-5 flex flex-col gap-3">
+          <LookupCostHint label="Address enrichment" costCents={15} className="mt-0" />
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <PrimaryButton
               onClick={handleSearch}
               disabled={isSearching || rateLimitCooldown > 0 || !address.street || !address.city || !address.state}
-              className="flex items-center justify-center gap-2 h-10 px-6 rounded-lg bg-[var(--go-accent)] hover:bg-[var(--go-accent-hover)] text-white text-[14px] font-medium transition-all duration-200 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full gap-2 sm:w-auto"
             >
               {isSearching ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   Analyzing...
                 </>
               ) : rateLimitCooldown > 0 ? (
@@ -586,73 +581,65 @@ Use real data sources when possible. Provide specific, actionable intelligence.`
               ) : (
                 'Analyze Address'
               )}
-            </button>
+            </PrimaryButton>
             {(address.street || address.city || address.state) && !isSearching && (
-              <button
-                onClick={handleClear}
-                className="text-xs text-[color:var(--go-text-meta)] hover:text-[color:var(--go-text-secondary)] transition-colors"
-              >
+              <GhostButton onClick={handleClear} className="w-full sm:w-auto">
                 Clear
-              </button>
+              </GhostButton>
             )}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
+      </WorkspacePanel>
 
-        {/* Results */}
-        <AnimatePresence mode="wait">
-          {results && !isSearching && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-8"
-            >
-              {/* Validation Status - Minimal */}
-              <div className="flex items-center justify-center gap-3 text-center flex-wrap">
-                <MinimalBadge variant={results.is_valid ? 'info' : 'neutral'} size="sm">
-                  {results.is_valid ? 'Verified' : 'Unverified'}
-                </MinimalBadge>
-                <span className="text-[color:var(--go-text-meta)]">•</span>
-                <span className="text-[11px] text-[color:var(--go-text-secondary)]">
-                  {results.city}, {results.state} {results.zip_code !== "Not provided" && results.zip_code}
-                  {results.county && `, ${results.county} County`} {/* Added county */}
-                </span>
-                {results.area_type && (
-                  <>
-                    <span className="text-[color:var(--go-text-meta)]">•</span>
-                    <MinimalBadge variant="neutral" size="xs">
-                      {results.area_type}
-                    </MinimalBadge>
-                  </>
-                )}
-              </div>
-
-              {/* Validation Notes Card */}
-              {!results.is_valid && results.validation_notes && (
-                <Card className="border border-[color:var(--go-error-border)] bg-[var(--go-error-fill)] text-[color:var(--go-error)] text-center p-4">
-                  <CardTitle className="text-[11px] font-semibold text-[color:var(--go-error)] mb-2 uppercase tracking-widest">Validation Alert</CardTitle>
-                  <CardContent className="p-0 text-[11px] leading-relaxed">
-                    <p>{results.validation_notes}</p>
-                  </CardContent>
-                </Card>
+      <AnimatePresence mode="wait">
+        {results && !isSearching && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            <div className="flex flex-wrap items-center justify-center gap-3 text-center">
+              <MinimalBadge variant={results.is_valid ? 'info' : 'neutral'} size="sm">
+                {results.is_valid ? 'Verified' : 'Unverified'}
+              </MinimalBadge>
+              <span className="text-go-text-muted">•</span>
+              <span className="text-[13px] text-go-text-secondary">
+                {results.city}, {results.state} {results.zip_code !== "Not provided" && results.zip_code}
+                {results.county && `, ${results.county} County`}
+              </span>
+              {results.area_type && (
+                <>
+                  <span className="text-go-text-muted">•</span>
+                  <MinimalBadge variant="neutral" size="xs">
+                    {results.area_type}
+                  </MinimalBadge>
+                </>
               )}
+            </div>
 
-              {/* Save Button - Centered */}
-              <div className="flex justify-center">
-                <div className="w-full max-w-xs">
-                  <SaveAddressButton addressData={results} />
-                </div>
+            {!results.is_valid && results.validation_notes && (
+              <WorkspacePanel title="Validation Alert" className="border-go-danger/30">
+                <p className="text-center text-[13px] leading-relaxed text-go-danger">
+                  {results.validation_notes}
+                </p>
+              </WorkspacePanel>
+            )}
+
+            <div className="flex justify-center">
+              <div className="w-full max-w-xs">
+                <SaveAddressButton addressData={results} />
               </div>
+            </div>
 
-              {/* Lender Approval Alert - NEW */}
-              <LenderApprovalAlert addressData={results} />
+            <LenderApprovalAlert addressData={results} />
 
-              {/* Neighborhood Score - Featured & Centered */}
-              {results.neighborhood_score && (
+            {results.neighborhood_score && (
+              <WorkspacePanel>
                 <div className="flex flex-col items-center">
-                  <div className="relative w-40 h-40 mb-6">
-                    <svg className="w-full h-full transform -rotate-90">
+                  <div className="relative mb-6 h-40 w-40">
+                    <svg className="h-full w-full -rotate-90 transform">
                       <circle
                         cx="80"
                         cy="80"
@@ -660,161 +647,219 @@ Use real data sources when possible. Provide specific, actionable intelligence.`
                         stroke="currentColor"
                         strokeWidth="10"
                         fill="none"
-                        className="text-[color:var(--go-text)]/10"
+                        className="text-go-border"
                       />
                       <circle
                         cx="80"
                         cy="80"
                         r="70"
-                        stroke="var(--go-accent)"
+                        stroke="url(#addrScoreGradient)"
                         strokeWidth="10"
                         fill="none"
                         strokeDasharray={`${(results.neighborhood_score / 100) * 439.82} 439.82`}
                         className="transition-all duration-1000"
                       />
+                      <defs>
+                        <linearGradient id="addrScoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor={results.neighborhood_score >= 60 ? '#4358a5' : '#6b7280'} />
+                          <stop offset="100%" stopColor={results.neighborhood_score >= 60 ? '#5a6fb8' : '#4b5563'} />
+                        </linearGradient>
+                      </defs>
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className={`text-5xl font-bold ${getScoreGrade(results.neighborhood_score).color}`}>
+                      <div className={`text-5xl font-semibold ${getScoreGrade(results.neighborhood_score).color}`}>
                         {results.neighborhood_score}
                       </div>
-                      <div className="text-xs text-[color:var(--go-text-muted)] uppercase tracking-wider mt-1">
+                      <div className="mt-1 text-xs uppercase tracking-wider text-go-text-muted">
                         / 100
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-2">
-                    <MinimalBadge 
-                      variant={
-                        results.neighborhood_score >= 90 ? 'info' :
-                        results.neighborhood_score >= 80 ? 'info' :
-                        results.neighborhood_score >= 70 ? 'info' :
-                        results.neighborhood_score >= 60 ? 'neutral' :
-                        'neutral'
-                      }
+                  <div className="mb-2 flex items-center gap-2">
+                    <MinimalBadge
+                      variant={results.neighborhood_score >= 60 ? 'info' : 'neutral'}
                       size="md"
                     >
                       {getScoreGrade(results.neighborhood_score).label}
                     </MinimalBadge>
                   </div>
-                  
+
                   {results.national_percentile && (
-                    <div className="text-[13px] text-[color:var(--go-accent-text)]">
+                    <div className="text-[13px] text-go-primary">
                       {results.national_percentile}
                     </div>
                   )}
                 </div>
-              )}
+              </WorkspacePanel>
+            )}
 
-              {/* Two Column Layout: Map + Charts */}
-              <div className="grid lg:grid-cols-2 gap-6">
-                <AddressMap
-                  latitude={results.latitude}
-                  longitude={results.longitude}
-                  address={`${results.street_address}, ${results.city}, ${results.state}`}
-                  neighborhoodScore={results.neighborhood_score}
-                />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <AddressMap
+                latitude={results.latitude}
+                longitude={results.longitude}
+                address={`${results.street_address}, ${results.city}, ${results.state}`}
+                neighborhoodScore={results.neighborhood_score}
+              />
 
-                <DemographicCharts data={results} />
-              </div>
+              <DemographicCharts data={results} />
+            </div>
 
-              {/* Additional Intelligence */}
-              {results.additional_intelligence && (
-                <AdditionalIntelligence insights={results.additional_intelligence} />
-              )}
+            {results.additional_intelligence && (
+              <AdditionalIntelligence insights={results.additional_intelligence} />
+            )}
 
-              {/* Demographics - Condensed */}
-              {results.median_household_income && (
-                <Card className="go-panel shadow-none">
-                  <CardContent className="p-4 md:p-5 space-y-5">
+            {(results.comparable_areas?.length > 0 || results.business_suitability?.length > 0 || results.notable_characteristics?.length > 0 || results.growth_trajectory) && (
+              <WorkspacePanel title="Market Intelligence">
+                <div className="space-y-6">
+                  {results.growth_trajectory && (
                     <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        <MinimalBadge 
-                          variant={
-                            results.median_household_income >= 150000 ? 'info' :
-                            results.median_household_income >= 120000 ? 'info' :
-                            results.median_household_income >= 90000 ? 'info' :
-                            results.median_household_income >= 60000 ? 'neutral' :
-                            'neutral'
-                          }
-                          size="sm"
-                        >
-                          {getIncomeBracket(results.median_household_income).label}
+                      <div className="mb-2 flex items-center justify-center gap-2">
+                        <MinimalBadge variant="info" size="xs">
+                          Growth Trajectory
                         </MinimalBadge>
                       </div>
-                      <div className={`text-3xl font-semibold ${getIncomeBracket(results.median_household_income).color} mb-1`}>
-                        ${results.median_household_income.toLocaleString()}
+                      <p className="mx-auto max-w-2xl text-[13px] leading-relaxed text-go-text-secondary">
+                        {results.growth_trajectory}
+                      </p>
+                    </div>
+                  )}
+
+                  {results.comparable_areas?.length > 0 && (
+                    <div className="text-center">
+                      <div className="mb-3 flex items-center justify-center gap-2">
+                        <MinimalBadge variant="neutral" size="xs">
+                          Comparable Areas
+                        </MinimalBadge>
                       </div>
-                      <div className="text-[12px] text-[color:var(--go-text-muted)]">Median Household Income</div>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {results.comparable_areas.map((area, index) => (
+                          <span key={index} className="rounded-[8px] border border-go-border bg-go-surface-muted px-2 py-1 text-xs text-go-text-secondary">
+                            {area}
+                          </span>
+                        ))}
+                      </div>
                     </div>
+                  )}
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {results.median_home_value && (
-                        <div className="text-center p-3 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-lg">
-                          <div className="text-lg font-semibold text-[color:var(--go-text)] mb-1">
-                            ${(results.median_home_value / 1000).toFixed(0)}k
+                  {results.business_suitability?.length > 0 && (
+                    <div className="text-center">
+                      <div className="mb-3 flex items-center justify-center gap-2">
+                        <MinimalBadge variant="success" size="xs">
+                          Ideal For
+                        </MinimalBadge>
+                      </div>
+                      <div className="mx-auto max-w-2xl space-y-2">
+                        {results.business_suitability.map((business, index) => (
+                          <div key={index} className="rounded-[10px] border border-go-border bg-go-surface-muted p-3 text-[13px] text-go-text-secondary">
+                            {business}
                           </div>
-                          <div className="text-[12px] text-[color:var(--go-text-secondary)]">
-                            Home Value
-                          </div>
-                        </div>
-                      )}
-
-                      {results.population_density && (
-                        <div className="text-center p-3 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-lg">
-                          <div className="text-lg font-semibold text-[color:var(--go-text)] mb-1">
-                            {(results.population_density / 1000).toFixed(1)}k
-                          </div>
-                          <div className="text-[12px] text-[color:var(--go-text-secondary)]">
-                            per sq mi
-                          </div>
-                        </div>
-                      )}
-
-                      {results.poverty_rate !== null && results.poverty_rate !== undefined && (
-                        <div className="text-center p-3 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-lg">
-                          <div className="text-lg font-semibold text-[color:var(--go-text)] mb-1">
-                            {results.poverty_rate.toFixed(1)}%
-                          </div>
-                          <div className="text-[12px] text-[color:var(--go-text-secondary)]">
-                            Poverty
-                          </div>
-                        </div>
-                      )}
-
-                      {results.education_bachelor_plus !== null && results.education_bachelor_plus !== undefined && (
-                        <div className="text-center p-3 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-lg">
-                          <div className="text-lg font-semibold text-[color:var(--go-text)] mb-1">
-                            {results.education_bachelor_plus.toFixed(1)}%
-                          </div>
-                          <div className="text-[12px] text-[color:var(--go-text-secondary)]">
-                            Bachelor+
-                          </div>
-                        </div>
-                      )}
+                        ))}
+                      </div>
                     </div>
+                  )}
 
-                    {results.demographic_summary && (
-                      <div className="text-center p-4 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-lg">
-                        <p className="text-xs text-[color:var(--go-text-body)] leading-relaxed max-w-2xl mx-auto">
-                          {results.demographic_summary}
-                        </p>
+                  {results.notable_characteristics?.length > 0 && (
+                    <div className="text-center">
+                      <div className="mb-3 flex items-center justify-center gap-2">
+                        <MinimalBadge variant="neutral" size="xs">
+                          Key Characteristics
+                        </MinimalBadge>
+                      </div>
+                      <div className="mx-auto max-w-2xl space-y-2">
+                        {results.notable_characteristics.map((characteristic, index) => (
+                          <div key={index} className="rounded-[10px] border border-go-border bg-go-surface-muted p-3 text-[13px] text-go-text-secondary">
+                            {characteristic}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </WorkspacePanel>
+            )}
+
+            {results.median_household_income && (
+              <WorkspacePanel title="Demographics">
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mb-3 flex items-center justify-center gap-2">
+                      <MinimalBadge
+                        variant={results.median_household_income >= 90000 ? 'info' : 'neutral'}
+                        size="sm"
+                      >
+                        {getIncomeBracket(results.median_household_income).label}
+                      </MinimalBadge>
+                    </div>
+                    <div className={`mb-1 text-3xl font-semibold ${getIncomeBracket(results.median_household_income).color}`}>
+                      ${results.median_household_income.toLocaleString()}
+                    </div>
+                    <div className="text-[12px] text-go-text-muted">Median household income</div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+                    {results.median_home_value && (
+                      <div className="rounded-[10px] border border-go-border bg-go-surface-muted p-4 text-center">
+                        <div className="mb-1 text-lg font-semibold text-go-text">
+                          ${(results.median_home_value / 1000).toFixed(0)}k
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wider text-go-text-muted">
+                          Home Value
+                        </div>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
-              )}
 
-              {/* Data Disclaimer */}
-              <div className="text-center">
-                <p className="text-[10px] text-[color:var(--go-text-muted)] max-w-2xl mx-auto">
-                  <span className="font-medium text-[color:var(--go-text-secondary)]">Data Sources:</span> Analysis derived from US Census Bureau data, public records. For critical decisions, verify with official sources.
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+                    {results.population_density && (
+                      <div className="rounded-[10px] border border-go-border bg-go-surface-muted p-4 text-center">
+                        <div className="mb-1 text-lg font-semibold text-go-text">
+                          {(results.population_density / 1000).toFixed(1)}k
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wider text-go-text-muted">
+                          per sq mi
+                        </div>
+                      </div>
+                    )}
+
+                    {results.poverty_rate !== null && results.poverty_rate !== undefined && (
+                      <div className="rounded-[10px] border border-go-border bg-go-surface-muted p-4 text-center">
+                        <div className="mb-1 text-lg font-semibold text-go-text">
+                          {results.poverty_rate.toFixed(1)}%
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wider text-go-text-muted">
+                          Poverty
+                        </div>
+                      </div>
+                    )}
+
+                    {results.education_bachelor_plus !== null && results.education_bachelor_plus !== undefined && (
+                      <div className="rounded-[10px] border border-go-border bg-go-surface-muted p-4 text-center">
+                        <div className="mb-1 text-lg font-semibold text-go-text">
+                          {results.education_bachelor_plus.toFixed(1)}%
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wider text-go-text-muted">
+                          Bachelor+
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {results.demographic_summary && (
+                    <div className="rounded-[10px] border border-go-border bg-go-surface-muted p-4 text-center">
+                      <p className="mx-auto max-w-2xl text-[13px] leading-relaxed text-go-text-secondary">
+                        {results.demographic_summary}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </WorkspacePanel>
+            )}
+
+            <p className="mx-auto max-w-2xl text-center text-[12px] text-go-text-muted">
+              <span className="font-medium text-go-text-secondary">Data Sources:</span> Analysis derived from US Census Bureau data, public records, and AI-assisted intelligence. For critical decisions, verify with official sources.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </WorkspacePage>
   );
 }

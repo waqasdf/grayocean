@@ -1,3 +1,3 @@
-import { db } from '@/api/localClient'
-export const ForumPost = db.entities.ForumPost
-export default ForumPost
+import { createEntity } from "@/lib/entityClient";
+
+export const ForumPost = createEntity("forum_posts");

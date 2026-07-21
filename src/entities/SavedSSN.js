@@ -1,3 +1,3 @@
-import { db } from '@/api/localClient'
-export const SavedSSN = db.entities.SavedSSN
-export default SavedSSN
+import { createEntity } from "@/lib/entityClient";
+
+export const SavedSSN = createEntity("saved_ssns");

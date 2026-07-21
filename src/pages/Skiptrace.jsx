@@ -7,6 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion, AnimatePresence } from "framer-motion";
 import { InvokeLLM } from "@/integrations/Core";
 import { Download, Search, MapPin, Phone, Mail, Users, Briefcase, FileText, ExternalLink, AlertCircle, Copy, Check, Clock, ShieldAlert } from "lucide-react";
+import {
+  WorkspacePage,
+  WorkspacePanel,
+  PrimaryButton,
+  GhostButton,
+} from "@/components/dashboard";
+import { LookupCostHint } from "@/components/shared/LookupCostHint";
 
 export default function SkiptracePage() {
   const [user, setUser] = useState(null);
@@ -120,7 +127,7 @@ export default function SkiptracePage() {
 
   const confidenceBadge = (c) => {
     if (c === 'high') return <MinimalBadge variant="success" size="xs">High</MinimalBadge>;
-    if (c === 'medium') return <MinimalBadge variant="cyan" size="xs">Medium</MinimalBadge>;
+    if (c === 'medium') return <MinimalBadge variant="info" size="xs">Medium</MinimalBadge>;
     return <MinimalBadge variant="neutral" size="xs">Low</MinimalBadge>;
   };
 
@@ -131,29 +138,34 @@ export default function SkiptracePage() {
   ];
 
   const ResultSection = ({ icon: Icon, title, children, count }) => (
-    <div className="go-panel overflow-hidden">
-      <div className="px-5 py-3.5 border-b border-[color:var(--go-border)] flex items-center justify-between">
+    <div className="overflow-hidden rounded-[10px] border border-go-border bg-go-surface">
+      <div className="flex items-center justify-between border-b border-go-border px-5 py-3.5">
         <div className="flex items-center gap-2">
-          <Icon className="w-3.5 h-3.5 text-[color:var(--go-text-muted)]" />
-          <span className="text-[11px] font-semibold text-[color:var(--go-text-body)] uppercase tracking-widest">{title}</span>
+          <Icon className="h-3.5 w-3.5 text-go-text-muted" />
+          <span className="text-[14px] font-medium text-go-text">{title}</span>
         </div>
-        {count !== undefined && <span className="text-[10px] font-mono text-[color:var(--go-text-meta)]">{count}</span>}
+        {count !== undefined && <span className="font-mono text-[12px] text-go-text-muted">{count}</span>}
       </div>
-      <div className="p-4 space-y-2">{children}</div>
+      <div className="space-y-2 p-4">{children}</div>
     </div>
   );
 
   const DataRow = ({ primary, secondary, confidence, onCopy, copyId }) => (
-    <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] hover:border-white/[0.09] transition-colors">
+    <div className="flex items-center justify-between gap-3 rounded-[10px] border border-go-border bg-go-surface-muted p-3 transition-colors hover:border-go-border-strong">
       <div className="min-w-0 flex-1">
-        <div className="text-xs text-[color:var(--go-text)] font-medium truncate">{primary}</div>
-        {secondary && <div className="text-[10px] text-[color:var(--go-text-meta)] mt-0.5 truncate">{secondary}</div>}
+        <div className="truncate text-[13px] font-medium text-go-text">{primary}</div>
+        {secondary && <div className="mt-0.5 truncate text-[12px] text-go-text-muted">{secondary}</div>}
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-2">
         {confidence && confidenceBadge(confidence)}
         {onCopy && (
-          <button onClick={onCopy} className="text-[color:var(--go-text-meta)] hover:text-[color:var(--go-text-secondary)] transition-colors">
-            {copiedItem === copyId ? <Check className="w-3 h-3 text-[color:var(--go-success)]" /> : <Copy className="w-3 h-3" />}
+          <button
+            type="button"
+            onClick={onCopy}
+            aria-label="Copy"
+            className="inline-flex size-10 items-center justify-center rounded-[8px] text-go-text-muted transition-colors hover:bg-white/[0.04] hover:text-go-text"
+          >
+            {copiedItem === copyId ? <Check className="h-3.5 w-3.5 text-go-success" /> : <Copy className="h-3.5 w-3.5" />}
           </button>
         )}
       </div>
@@ -161,318 +173,291 @@ export default function SkiptracePage() {
   );
 
   return (
-    <div className="min-h-full">
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-5 md:py-6">
-        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="go-kicker mb-2">People search</p>
-              <h1 className="go-page-title">Skiptrace</h1>
-              <p className="go-page-subtitle mt-1.5">
-                Search public records by name and location.
+    <WorkspacePage
+      title="Skiptrace"
+      description="Aggregate public records and online intelligence"
+      maxWidth="max-w-5xl"
+      actions={
+        results ? (
+          <GhostButton onClick={handleExport}>
+            <Download className="h-3.5 w-3.5" />
+            Export
+          </GhostButton>
+        ) : null
+      }
+    >
+      {!acceptedTerms && (
+        <div className="mb-6 rounded-[10px] border border-go-warning/30 bg-go-warning-muted p-5">
+          <div className="flex items-start gap-3">
+            <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0 text-go-warning" />
+            <div className="flex-1">
+              <p className="mb-2 text-[13px] font-medium text-go-warning">Legal Notice — Required</p>
+              <p className="mb-3 text-[13px] leading-relaxed text-go-text-secondary">
+                This tool aggregates publicly available information only. By using this service you agree to use data for lawful purposes, comply with the FCRA, and not use information for harassment or stalking. This is NOT a consumer reporting agency.
               </p>
+              <label className="flex cursor-pointer items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => handleAcceptTerms(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-go-border bg-go-surface-elevated accent-[var(--go-primary)]"
+                />
+                <span className="text-[13px] text-go-text">I understand and accept these terms</span>
+              </label>
             </div>
-            {results && (
-              <button
-                onClick={handleExport}
-                className="go-pill-btn !h-9 !text-[12px] !px-4"
-                style={{
-                  background: "transparent",
-                  color: "var(--go-text-body)",
-                  border: "1px solid var(--go-border-strong)",
-                }}
-              >
-                <Download className="w-3.5 h-3.5" />
-                Export
-              </button>
-            )}
           </div>
-        </motion.div>
+        </div>
+      )}
 
-        {/* Legal notice */}
-        {!acceptedTerms && (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-            <div className="rounded-lg border border-[color:var(--go-warning-border)] bg-[var(--go-warning-fill)] p-4">
-              <div className="flex items-start gap-3">
-                <ShieldAlert className="w-4 h-4 text-[color:var(--go-warning)] mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-[13px] font-semibold text-[color:var(--go-warning)] mb-2">Legal Notice — Required</p>
-                  <p className="text-[13px] text-[color:var(--go-text-secondary)] leading-relaxed mb-3">
-                    This tool aggregates publicly available information only. By using this service you agree to use data for lawful purposes, comply with the FCRA, and not use information for harassment or stalking. This is NOT a consumer reporting agency.
-                  </p>
-                  <label className="flex items-center gap-2.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={acceptedTerms}
-                      onChange={(e) => handleAcceptTerms(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded border-[color:var(--go-border)] bg-[var(--go-bg-panel)] accent-[var(--go-accent)]"
-                    />
-                    <span className="text-[11px] text-[color:var(--go-text)]">I understand and accept these terms</span>
-                  </label>
-                </div>
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="space-y-3 lg:col-span-2">
+          <WorkspacePanel title="Search Parameters">
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-[12px] font-medium text-go-text-muted">
+                  Full Name <span className="text-go-danger">*</span>
+                </label>
+                <Input
+                  placeholder="Jane Smith"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
               </div>
-            </div>
-          </motion.div>
-        )}
-
-        <div className="grid lg:grid-cols-5 gap-6">
-          {/* Search panel */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="lg:col-span-2 space-y-3"
-          >
-            <div className="go-panel overflow-hidden">
-              <div className="px-5 py-4 border-b border-[color:var(--go-border)]">
-                <span className="text-[11px] font-semibold text-[color:var(--go-text-body)] uppercase tracking-widest">Search Parameters</span>
-              </div>
-              <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-[color:var(--go-text-muted)] uppercase tracking-widest mb-2">Full Name <span className="text-[color:var(--go-error)]">*</span></label>
+                  <label className="mb-2 block text-[12px] font-medium text-go-text-muted">City</label>
                   <Input
-                    placeholder="Jane Smith"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="bg-[var(--go-bg)] border-[color:var(--go-border-strong)] text-[color:var(--go-text)] text-sm placeholder:text-[color:var(--go-text-meta)] focus:border-[color:var(--go-accent)] focus:ring-0 h-9"
+                    placeholder="Houston"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] text-[color:var(--go-text-muted)] uppercase tracking-widest mb-2">City</label>
-                    <Input
-                      placeholder="Houston"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="bg-[var(--go-bg)] border-[color:var(--go-border-strong)] text-[color:var(--go-text)] text-sm placeholder:text-[color:var(--go-text-meta)] focus:border-[color:var(--go-accent)] focus:ring-0 h-9"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-[color:var(--go-text-muted)] uppercase tracking-widest mb-2">Age</label>
-                    <Input
-                      type="number"
-                      placeholder="35"
-                      value={age}
-                      onChange={(e) => setAge(e.target.value)}
-                      className="bg-[var(--go-bg)] border-[color:var(--go-border-strong)] text-[color:var(--go-text)] text-sm placeholder:text-[color:var(--go-text-meta)] focus:border-[color:var(--go-accent)] focus:ring-0 h-9"
-                    />
-                  </div>
-                </div>
                 <div>
-                  <label className="block text-[10px] text-[color:var(--go-text-muted)] uppercase tracking-widest mb-2">State</label>
-                  <Select value={state} onValueChange={setState}>
-                    <SelectTrigger className="bg-[var(--go-bg)] border-[color:var(--go-border-strong)] text-[color:var(--go-text)] text-sm h-9 focus:ring-0">
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[var(--go-bg-elevated)] border-[color:var(--go-border-strong)] max-h-64">
-                      {usStates.map(s => (
-                        <SelectItem key={s} value={s} className="text-[color:var(--go-text)] hover:bg-[var(--go-bg-panel)] text-xs font-mono">{s}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <label className="mb-2 block text-[12px] font-medium text-go-text-muted">Age</label>
+                  <Input
+                    type="number"
+                    placeholder="35"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                  />
                 </div>
+              </div>
+              <div>
+                <label className="mb-2 block text-[12px] font-medium text-go-text-muted">State</label>
+                <Select value={state} onValueChange={setState}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-64">
+                    {usStates.map(s => (
+                      <SelectItem key={s} value={s} className="font-mono text-xs">{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                {error && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg border border-[color:var(--go-error-border)] bg-[var(--go-error-fill)]">
-                    <AlertCircle className="w-3.5 h-3.5 text-[color:var(--go-error)] mt-0.5 flex-shrink-0" />
-                    <span className="text-[11px] text-[color:var(--go-error)]">{error}</span>
-                  </div>
-                )}
+              {error && (
+                <div className="flex items-start gap-2 rounded-[10px] border border-go-danger/30 bg-go-danger-muted p-3">
+                  <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-go-danger" />
+                  <span className="text-[13px] text-go-danger">{error}</span>
+                </div>
+              )}
 
-                {acceptedTerms && (
-                  <button
+              {acceptedTerms && (
+                <>
+                  <LookupCostHint label="Basic skiptrace" costCents={25} className="mt-0" />
+                  <PrimaryButton
                     onClick={handleSearch}
                     disabled={isSearching || !fullName.trim()}
-                    className="w-full flex items-center justify-center gap-2 h-10 rounded-lg bg-[var(--go-accent)] hover:bg-[var(--go-accent-hover)] text-white text-[14px] font-medium transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="w-full gap-2"
                   >
                     {isSearching ? (
                       <>
-                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Searching<span className="animate-pulse">...</span></span>
+                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        <span>Searching...</span>
                       </>
                     ) : (
-                      <><Search className="w-3.5 h-3.5" /> Search Public Records</>
+                      <><Search className="h-3.5 w-3.5" /> Search Public Records</>
                     )}
-                  </button>
-                )}
-
-                {isSearching && (
-                  <div className="flex items-center justify-center gap-2 text-[10px] text-[color:var(--go-text-meta)]">
-                    <Clock className="w-3 h-3" />
-                    <span>~{estimatedTime}s remaining</span>
-                  </div>
-                )}
-
-                {!acceptedTerms && (
-                  <div className="text-center text-[10px] text-[color:var(--go-text-meta)]">Accept the legal notice above to enable search</div>
-                )}
-              </div>
-            </div>
-
-            {/* Terms indicator if accepted */}
-            {acceptedTerms && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[color:var(--go-success-border)] bg-[var(--go-success-fill)]">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--go-success)]" />
-                <span className="text-[10px] text-[color:var(--go-success)]">Legal terms accepted</span>
-              </div>
-            )}
-          </motion.div>
-
-          {/* Results */}
-          <div className="lg:col-span-3">
-            <AnimatePresence mode="wait">
-              {!results && !isSearching && (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="min-h-64 rounded-lg border border-dashed border-[color:var(--go-border)] flex flex-col items-center justify-center gap-3 text-center p-8"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] flex items-center justify-center">
-                    <Search className="w-4 h-4 text-[color:var(--go-text-meta)]" />
-                  </div>
-                  <div>
-                    <p className="text-[11px] text-[color:var(--go-text-meta)]">No results yet</p>
-                    <p className="text-[10px] text-[color:var(--go-text-meta)] mt-1">Enter a name and run a search</p>
-                  </div>
-                </motion.div>
+                  </PrimaryButton>
+                </>
               )}
 
               {isSearching && (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="min-h-64 go-panel flex flex-col items-center justify-center gap-4 p-12"
-                >
-                  <div className="relative w-12 h-12">
-                    <div className="absolute inset-0 rounded-full border-2 border-[color:var(--go-accent-border)]" />
-                    <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[color:var(--go-accent)] animate-spin" />
-                    <div className="absolute inset-2 rounded-full border border-[color:var(--go-border)]" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[11px] text-[color:var(--go-text)] mb-1">Scanning public records</p>
-                    <p className="text-[11px] text-[color:var(--go-text-meta)]">Cross-referencing {['LinkedIn', 'property records', 'public databases', 'court records'][Math.floor(Date.now() / 3000) % 4]}...</p>
-                  </div>
-                </motion.div>
+                <div className="flex items-center justify-center gap-2 text-[12px] text-go-text-muted">
+                  <Clock className="h-3 w-3" />
+                  <span>~{estimatedTime}s remaining</span>
+                </div>
               )}
 
-              {results && !isSearching && (
-                <motion.div
-                  key="results"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-4"
-                >
-                  {/* Score header */}
-                  <div className="go-panel p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-[13px] font-semibold text-[color:var(--go-text)] mb-0.5">{results.full_name}</p>
-                        <p className="text-[12px] text-[color:var(--go-text-muted)]">{results.sources_found} sources found</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-semibold font-mono text-[color:var(--go-text)]">{results.confidence_score}<span className="text-base text-[color:var(--go-text-muted)]">%</span></div>
-                        <div className="text-[12px] text-[color:var(--go-text-muted)]">Confidence</div>
-                      </div>
-                    </div>
-                    <div className="h-1 bg-[var(--go-bg-panel)] border border-[color:var(--go-border)] rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${results.confidence_score}%` }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className={`h-full rounded-full ${results.confidence_score > 70 ? 'bg-[var(--go-success)]' : results.confidence_score > 40 ? 'bg-[var(--go-accent)]' : 'bg-[var(--go-text-muted)]'}`}
-                      />
-                    </div>
-                    {results.results.summary && (
-                      <p className="text-[11px] text-[color:var(--go-text-muted)] mt-3 leading-relaxed border-t border-[color:var(--go-border)] pt-3">
-                        {results.results.summary}
-                      </p>
-                    )}
-                  </div>
-
-                  {results.results.addresses?.length > 0 && (
-                    <ResultSection icon={MapPin} title="Addresses" count={results.results.addresses.length}>
-                      {results.results.addresses.map((a, i) => (
-                        <DataRow key={i} primary={`${a.city}, ${a.state} ${a.zip || ''}`} secondary={a.source} confidence={a.confidence} onCopy={() => handleCopy(`${a.city}, ${a.state} ${a.zip}`, `addr-${i}`)} copyId={`addr-${i}`} />
-                      ))}
-                    </ResultSection>
-                  )}
-
-                  {results.results.phone_numbers?.length > 0 && (
-                    <ResultSection icon={Phone} title="Phone Numbers" count={results.results.phone_numbers.length}>
-                      {results.results.phone_numbers.map((p, i) => (
-                        <DataRow key={i} primary={p.number} secondary={`${p.type || ''} · ${p.source || ''}`} confidence={p.confidence} onCopy={() => handleCopy(p.number, `phone-${i}`)} copyId={`phone-${i}`} />
-                      ))}
-                    </ResultSection>
-                  )}
-
-                  {results.results.emails?.length > 0 && (
-                    <ResultSection icon={Mail} title="Email Addresses" count={results.results.emails.length}>
-                      {results.results.emails.map((e, i) => (
-                        <DataRow key={i} primary={e.email} secondary={e.source} confidence={e.confidence} onCopy={() => handleCopy(e.email, `email-${i}`)} copyId={`email-${i}`} />
-                      ))}
-                    </ResultSection>
-                  )}
-
-                  {results.results.social_profiles?.length > 0 && (
-                    <ResultSection icon={ExternalLink} title="Social Profiles" count={results.results.social_profiles.length}>
-                      {results.results.social_profiles.map((s, i) => (
-                        <div key={i} className="flex items-center justify-between gap-3 p-3 rounded-lg bg-[var(--go-bg-panel)] border border-[color:var(--go-border)]">
-                          <div className="min-w-0 flex-1">
-                            <div className="text-xs text-[color:var(--go-text)] font-medium">{s.platform}</div>
-                            <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[color:var(--go-accent-text)] hover:text-[color:var(--go-accent-text-hover)] truncate block">
-                              {s.url}
-                            </a>
-                          </div>
-                          {confidenceBadge(s.confidence)}
-                        </div>
-                      ))}
-                    </ResultSection>
-                  )}
-
-                  {results.results.relatives?.length > 0 && (
-                    <ResultSection icon={Users} title="Relatives / Associates" count={results.results.relatives.length}>
-                      {results.results.relatives.map((r, i) => (
-                        <DataRow key={i} primary={r.name} secondary={r.relationship} confidence={r.confidence} />
-                      ))}
-                    </ResultSection>
-                  )}
-
-                  {results.results.employment?.company && (
-                    <ResultSection icon={Briefcase} title="Employment">
-                      <DataRow primary={`${results.results.employment.title} at ${results.results.employment.company}`} secondary={`${results.results.employment.location || ''} · ${results.results.employment.source || ''}`} confidence={results.results.employment.confidence} />
-                    </ResultSection>
-                  )}
-
-                  {results.results.public_records?.length > 0 && (
-                    <ResultSection icon={FileText} title="Public Records" count={results.results.public_records.length}>
-                      {results.results.public_records.map((r, i) => (
-                        <div key={i} className="p-3 rounded-lg bg-[var(--go-bg-panel)] border border-[color:var(--go-border)]">
-                          <div className="text-xs text-[color:var(--go-text)] font-medium mb-1">{r.type}</div>
-                          <div className="text-[11px] text-[color:var(--go-text-secondary)]">{r.details}</div>
-                          {(r.date || r.source) && <div className="text-[10px] text-[color:var(--go-text-meta)] mt-1">{r.date} · {r.source}</div>}
-                        </div>
-                      ))}
-                    </ResultSection>
-                  )}
-
-                  <button
-                    onClick={() => { setResults(null); setFullName(''); setCity(''); setState(''); setAge(''); }}
-                    className="w-full py-2.5 rounded-lg border border-[color:var(--go-border)] text-xs text-[color:var(--go-text-meta)] hover:text-[color:var(--go-text-secondary)] hover:border-[color:var(--go-border-strong)] transition-all"
-                  >
-                    New search
-                  </button>
-                </motion.div>
+              {!acceptedTerms && (
+                <div className="text-center text-[12px] text-go-text-muted">Accept the legal notice above to enable search</div>
               )}
-            </AnimatePresence>
-          </div>
+            </div>
+          </WorkspacePanel>
+
+          {acceptedTerms && (
+            <div className="flex items-center gap-2 rounded-[10px] border border-go-success/20 bg-go-success-muted px-3 py-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-go-success" />
+              <span className="text-[12px] text-go-success">Legal terms accepted</span>
+            </div>
+          )}
+        </div>
+
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            {!results && !isSearching && (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-[10px] border border-dashed border-go-border p-12 text-center"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-go-border bg-go-surface">
+                  <Search className="h-4 w-4 text-go-text-muted" />
+                </div>
+                <div>
+                  <p className="text-[13px] text-go-text-secondary">No results yet</p>
+                  <p className="mt-1 text-[12px] text-go-text-muted">Enter a name and run a search</p>
+                </div>
+              </motion.div>
+            )}
+
+            {isSearching && (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex min-h-64 flex-col items-center justify-center gap-4 rounded-[10px] border border-go-border bg-go-surface p-12"
+              >
+                <div className="h-10 w-10 animate-spin rounded-full border-2 border-go-border border-t-go-primary" />
+                <div className="text-center">
+                  <p className="mb-1 text-[13px] text-go-text">Scanning public records</p>
+                  <p className="text-[13px] text-go-text-muted">Cross-referencing {['LinkedIn', 'property records', 'public databases', 'court records'][Math.floor(Date.now() / 3000) % 4]}...</p>
+                </div>
+              </motion.div>
+            )}
+
+            {results && !isSearching && (
+              <motion.div
+                key="results"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="space-y-4"
+              >
+                <div className="rounded-[10px] border border-go-border bg-go-surface p-5">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div>
+                      <p className="mb-0.5 text-[14px] font-medium text-go-text">{results.full_name}</p>
+                      <p className="text-[12px] text-go-text-muted">{results.sources_found} sources found</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-mono text-2xl font-semibold text-go-text">{results.confidence_score}<span className="text-base text-go-text-muted">%</span></div>
+                      <div className="text-[11px] uppercase tracking-wider text-go-text-muted">Confidence</div>
+                    </div>
+                  </div>
+                  <div className="h-1 overflow-hidden rounded-full bg-go-surface-muted">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${results.confidence_score}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className={`h-full rounded-full ${
+                        results.confidence_score > 70
+                          ? 'bg-go-success'
+                          : results.confidence_score > 40
+                          ? 'bg-go-primary'
+                          : 'bg-go-text-muted'
+                      }`}
+                    />
+                  </div>
+                  {results.results.summary && (
+                    <p className="mt-3 border-t border-go-border pt-3 text-[13px] leading-relaxed text-go-text-secondary">
+                      {results.results.summary}
+                    </p>
+                  )}
+                </div>
+
+                {results.results.addresses?.length > 0 && (
+                  <ResultSection icon={MapPin} title="Addresses" count={results.results.addresses.length}>
+                    {results.results.addresses.map((a, i) => (
+                      <DataRow key={i} primary={`${a.city}, ${a.state} ${a.zip || ''}`} secondary={a.source} confidence={a.confidence} onCopy={() => handleCopy(`${a.city}, ${a.state} ${a.zip}`, `addr-${i}`)} copyId={`addr-${i}`} />
+                    ))}
+                  </ResultSection>
+                )}
+
+                {results.results.phone_numbers?.length > 0 && (
+                  <ResultSection icon={Phone} title="Phone Numbers" count={results.results.phone_numbers.length}>
+                    {results.results.phone_numbers.map((p, i) => (
+                      <DataRow key={i} primary={p.number} secondary={`${p.type || ''} · ${p.source || ''}`} confidence={p.confidence} onCopy={() => handleCopy(p.number, `phone-${i}`)} copyId={`phone-${i}`} />
+                    ))}
+                  </ResultSection>
+                )}
+
+                {results.results.emails?.length > 0 && (
+                  <ResultSection icon={Mail} title="Email Addresses" count={results.results.emails.length}>
+                    {results.results.emails.map((e, i) => (
+                      <DataRow key={i} primary={e.email} secondary={e.source} confidence={e.confidence} onCopy={() => handleCopy(e.email, `email-${i}`)} copyId={`email-${i}`} />
+                    ))}
+                  </ResultSection>
+                )}
+
+                {results.results.social_profiles?.length > 0 && (
+                  <ResultSection icon={ExternalLink} title="Social Profiles" count={results.results.social_profiles.length}>
+                    {results.results.social_profiles.map((s, i) => (
+                      <div key={i} className="flex items-center justify-between gap-3 rounded-[10px] border border-go-border bg-go-surface-muted p-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[13px] font-medium text-go-text">{s.platform}</div>
+                          <a href={s.url} target="_blank" rel="noopener noreferrer" className="block truncate text-[12px] text-go-primary hover:text-go-primary-hover">
+                            {s.url}
+                          </a>
+                        </div>
+                        {confidenceBadge(s.confidence)}
+                      </div>
+                    ))}
+                  </ResultSection>
+                )}
+
+                {results.results.relatives?.length > 0 && (
+                  <ResultSection icon={Users} title="Relatives / Associates" count={results.results.relatives.length}>
+                    {results.results.relatives.map((r, i) => (
+                      <DataRow key={i} primary={r.name} secondary={r.relationship} confidence={r.confidence} />
+                    ))}
+                  </ResultSection>
+                )}
+
+                {results.results.employment?.company && (
+                  <ResultSection icon={Briefcase} title="Employment">
+                    <DataRow primary={`${results.results.employment.title} at ${results.results.employment.company}`} secondary={`${results.results.employment.location || ''} · ${results.results.employment.source || ''}`} confidence={results.results.employment.confidence} />
+                  </ResultSection>
+                )}
+
+                {results.results.public_records?.length > 0 && (
+                  <ResultSection icon={FileText} title="Public Records" count={results.results.public_records.length}>
+                    {results.results.public_records.map((r, i) => (
+                      <div key={i} className="rounded-[10px] border border-go-border bg-go-surface-muted p-3">
+                        <div className="mb-1 text-[13px] font-medium text-go-text">{r.type}</div>
+                        <div className="text-[13px] text-go-text-secondary">{r.details}</div>
+                        {(r.date || r.source) && <div className="mt-1 text-[12px] text-go-text-muted">{r.date} · {r.source}</div>}
+                      </div>
+                    ))}
+                  </ResultSection>
+                )}
+
+                <GhostButton
+                  onClick={() => { setResults(null); setFullName(''); setCity(''); setState(''); setAge(''); }}
+                  className="w-full"
+                >
+                  New search
+                </GhostButton>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </div>
+    </WorkspacePage>
   );
 }

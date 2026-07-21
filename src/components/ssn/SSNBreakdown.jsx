@@ -34,14 +34,11 @@ export default function SSNBreakdown({ area, group, serial, state, onRegenerate 
   ];
 
   return (
-    <Card
-      className="rounded-lg border"
-      style={{ background: 'var(--go-bg-card)', borderColor: 'var(--go-border)' }}
-    >
-      <CardHeader className="border-b pb-3" style={{ borderColor: 'var(--go-border)' }}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <CardTitle className="text-[13px] font-medium" style={{ color: 'var(--go-text)' }}>
+    <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-sm">
+      <CardHeader className="border-b border-white/10 pb-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <CardTitle className="text-xs font-semibold text-white">
               Breakdown
             </CardTitle>
             {state && (
@@ -50,13 +47,12 @@ export default function SSNBreakdown({ area, group, serial, state, onRegenerate 
               </MinimalBadge>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => setShowInfo(!showInfo)}
               size="sm"
               variant="ghost"
-              className="h-8 px-2.5 text-[12px]"
-              style={{ color: 'var(--go-text-secondary)' }}
+              className="h-9 px-3 text-[11px] text-gray-400 hover:text-white"
             >
               {showInfo ? 'Hide Info' : 'Show Info'}
             </Button>
@@ -64,12 +60,7 @@ export default function SSNBreakdown({ area, group, serial, state, onRegenerate 
               <Button
                 onClick={onRegenerate}
                 size="sm"
-                className="h-8 text-[12px] border"
-                style={{
-                  background: 'transparent',
-                  color: 'var(--go-accent)',
-                  borderColor: 'var(--go-accent-border)',
-                }}
+                className="h-9 border border-go-border bg-go-surface-elevated px-3 text-[11px] text-go-text hover:bg-white/[0.06]"
               >
                 Regenerate
               </Button>
@@ -77,38 +68,32 @@ export default function SSNBreakdown({ area, group, serial, state, onRegenerate 
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="p-6">
         <AnimatePresence>
           {showInfo && (
             <motion.div
               initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-              animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+              animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
               exit={{ opacity: 0, height: 0, marginBottom: 0 }}
               className="overflow-hidden"
             >
-              <div
-                className="rounded-lg border p-4 space-y-3"
-                style={{
-                  background: 'var(--go-accent-soft)',
-                  borderColor: 'var(--go-accent-border)',
-                }}
-              >
-                <h3 className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--go-text-muted)' }}>Understanding SSN Structure</h3>
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4 space-y-3">
+                <h3 className="text-[10px] font-semibold text-white uppercase tracking-wider">Understanding SSN Structure</h3>
                 <div className="space-y-3">
                   {parts.map((part, index) => (
                     <div key={index} className="flex gap-3">
                       <div className="w-16 flex-shrink-0">
-                        <span className="text-[12px] font-medium" style={{ color: 'var(--go-accent)' }}>{part.label}</span>
+                        <span className="text-[10px] font-bold text-blue-400">{part.label}</span>
                       </div>
                       <div className="flex-1">
-                        <p className="text-[12px] leading-relaxed" style={{ color: 'var(--go-text-secondary)' }}>{part.explanation}</p>
+                        <p className="text-[10px] text-gray-300 leading-relaxed">{part.explanation}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="pt-3 border-t" style={{ borderColor: 'var(--go-border)' }}>
-                  <p className="text-[12px]" style={{ color: 'var(--go-text-muted)' }}>
-                    <span className="font-medium" style={{ color: 'var(--go-text-secondary)' }}>Example:</span> In SSN 123-45-6789, "123" is the area (geographic), "45" is the group (batch), and "6789" is the serial (unique identifier).
+                <div className="pt-3 border-t border-white/10">
+                  <p className="text-[10px] text-gray-400">
+                    <span className="font-semibold text-gray-300">Example:</span> In SSN 123-45-6789, "123" is the area (geographic), "45" is the group (batch), and "6789" is the serial (unique identifier).
                   </p>
                 </div>
               </div>
@@ -116,23 +101,20 @@ export default function SSNBreakdown({ area, group, serial, state, onRegenerate 
           )}
         </AnimatePresence>
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           {parts.map((part, index) => (
             <motion.div
               key={part.label}
-              initial={{ opacity: 0, y: 4 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="relative rounded-lg border p-4 transition-colors"
-              style={{
-                background: 'var(--go-bg-panel)',
-                borderColor: 'var(--go-border)',
-              }}
+              transition={{ delay: index * 0.1 }}
+              className="relative bg-white/5 border border-white/10 rounded-lg p-4 hover:border-blue-500/30 transition-all group overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-gray-500/0 group-hover:from-blue-500/5 group-hover:to-gray-500/5 transition-all duration-300" />
               <div className="relative">
-                <div className="text-[11px] font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--go-text-muted)' }}>{part.label}</div>
-                <div className="text-2xl font-semibold font-mono mb-1" style={{ color: 'var(--go-text)' }}>
-                  {part.shouldBlur ? (
+                <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">{part.label}</div>
+                <div className="text-2xl font-bold font-mono text-white mb-1">
+                  {part.shouldBlur ? ( // Conditionally render BlurredNumber if shouldBlur is true
                     <BlurredNumber
                       value={part.value}
                       isSubscribed={isSubscribed}
@@ -145,32 +127,29 @@ export default function SSNBreakdown({ area, group, serial, state, onRegenerate 
                     />
                   )}
                 </div>
-                <div className="text-[12px]" style={{ color: 'var(--go-text-muted)' }}>{part.sublabel}</div>
+                <div className="text-[10px] text-gray-600">{part.sublabel}</div>
               </div>
             </motion.div>
           ))}
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="relative flex items-center justify-center gap-2 p-4 rounded-lg border"
-          style={{
-            background: 'var(--go-bg-panel)',
-            borderColor: 'var(--go-border)',
-          }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="relative flex items-center justify-center gap-2 p-4 bg-gradient-to-r from-blue-500/5 via-gray-500/5 to-blue-500/5 border border-white/10 rounded-lg overflow-hidden"
         >
-          <span className="relative text-xl font-mono font-semibold" style={{ color: 'var(--go-text)' }}>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-gray-500/10 to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-500" />
+          <span className="relative text-xl font-mono font-bold text-white">
             <AnimatedNumber value={area} padLength={3} />
           </span>
-          <span className="relative" style={{ color: 'var(--go-text-muted)' }}>—</span>
-          <span className="relative text-xl font-mono font-semibold" style={{ color: 'var(--go-text)' }}>
+          <span className="relative text-gray-700">—</span>
+          <span className="relative text-xl font-mono font-bold text-white">
             <AnimatedNumber value={group} padLength={2} />
           </span>
-          <span className="relative" style={{ color: 'var(--go-text-muted)' }}>—</span>
-          <span className="relative text-xl font-mono font-semibold" style={{ color: 'var(--go-text)' }}>
-            <BlurredNumber
+          <span className="relative text-gray-700">—</span>
+          <span className="relative text-xl font-mono font-bold text-white">
+            <BlurredNumber // Use BlurredNumber for the serial in the full SSN display
               value={serial}
               isSubscribed={isSubscribed}
               padLength={4}

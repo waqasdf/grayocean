@@ -15,11 +15,7 @@ export function UpgradePrompt({ compact = false }) {
   if (compact) {
     return (
       <Link to={createPageUrl('Pricing')}>
-        <Button
-          size="sm"
-          className="h-8 text-[13px] text-white border-0"
-          style={{ background: 'var(--go-accent)' }}
-        >
+        <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 text-xs">
           Upgrade to View
         </Button>
       </Link>
@@ -27,24 +23,15 @@ export function UpgradePrompt({ compact = false }) {
   }
 
   return (
-    <div
-      className="rounded-lg border p-4 mt-4"
-      style={{
-        background: 'var(--go-accent-soft)',
-        borderColor: 'var(--go-accent-border)',
-      }}
-    >
-      <div className="text-[13px] font-medium mb-2" style={{ color: 'var(--go-text)' }}>
+    <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4 mt-4">
+      <div className="text-sm font-medium text-white mb-2">
         Upgrade to View Full Numbers
       </div>
-      <div className="text-[12px] mb-4" style={{ color: 'var(--go-text-secondary)' }}>
-        Subscribe to reveal complete SSN data and access all features
+      <div className="text-xs text-gray-300 mb-4">
+        Subscribe to reveal complete SSN data and unlock all features
       </div>
       <Link to={createPageUrl('Pricing')}>
-        <Button
-          className="w-full h-8 text-[13px] text-white border-0"
-          style={{ background: 'var(--go-accent)' }}
-        >
+        <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 text-xs">
           View Pricing
         </Button>
       </Link>
